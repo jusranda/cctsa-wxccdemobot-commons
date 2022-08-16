@@ -13,7 +13,7 @@
  * see <https://www.gnu.org/licenses/>.
  */
 
-const { Intent, IntentManager, Sequence, SequenceManager } = require("codingforconvos");
+const { Intent, IntentManager, Sequence, SequenceManager, fmtLog } = require("codingforconvos");
 
 // Define Sequence Name Constants.
 const SEQ_WELCOME_NAME = 'welcome';
@@ -70,7 +70,7 @@ const SEQ_WELCOME = new Sequence({
 
         // Updated to reward the sequence stack to handle post-first-time greetings once ready.
         dialogContext.setFulfillmentText();
-        console.log('action: '+dialogContext.currentAction+', lastFulfillmentText: '+dialogContext.params.lastFulfillmentText);
+        console.log(fmtLog('welcome.navigate', 'action: '+dialogContext.currentAction+', lastFulfillmentText: '+dialogContext.params.lastFulfillmentText, dialogContext));
         dialogContext.respondWithText();
         return;
     }

@@ -1,6 +1,6 @@
 {
   "name": "cctsa-wxccdemobot-commons",
-  "version": "0.0.17",
+  "version": "0.0.32",
   "description": "Common routines for building demo/reference bots with Webex Contact Center and Google Dialogflow ES using the codingforconvos NPM library.",
   "main": "src/cctsa-wxccdemobot-commons.js",
   "scripts": {
@@ -23,7 +23,8 @@
   },
   "homepage": "https://github.com/jusranda/cctsa-wxccdemobot-commons#readme",
   "dependencies": {
-    "codingforconvos": "^0.0.57",
+    "axios-redmine": "^0.1.17",
+    "codingforconvos": "^0.0.82",
     "dialogflow-fulfillment": "^0.6.1"
   }
 }

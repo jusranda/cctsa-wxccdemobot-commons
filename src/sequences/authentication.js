@@ -13,7 +13,7 @@
  * see <https://www.gnu.org/licenses/>.
  */
 
-const { Intent, IntentManager, Sequence, SequenceManager } = require("codingforconvos");
+const { Intent, IntentManager, Sequence, SequenceManager, fmtLog } = require("codingforconvos");
 
 // Define Sequence Name Constants.
 const SEQ_AUTH_NAME = 'authentication';
@@ -60,26 +60,26 @@ const SEQ_AUTH = new Sequence({
         let context = dialogContext.getOrCreateCtx(SEQ_AUTH_NAME);
 
         if (context.parameters.advisedAuthRequired === '0') {
-            console.log('Sending Event AuthRequired');
+            console.log(fmtLog('authentication.navigate', 'Sending Event AuthRequired', dialogContext));
             let event = dialogContext.respondWithEvent('AuthRequired', dialogContext.params.lastFulfillmentText);
             return;
         }
 
         if (dialogContext.params.customerIdentified === '1') {
             if (context.parameters.validationComplete === '0' && context.parameters.validationReceived === '1' && context.parameters.validationStatus === '1') {
-                console.log('Sending Event AuthOtpSuccess');
+                console.log(fmtLog('authentication.navigate', 'Sending Event AuthOtpSuccess', dialogContext));
                 let event = dialogContext.respondWithEvent('AuthOtpSuccess', dialogContext.params.lastFulfillmentText);
                 return;
             }
 
             if (context.parameters.validationComplete === '0' && context.parameters.validationReceived === '1' && context.parameters.validationStatus === '2') {
-                console.log('Sending Event AuthOtpFailure');
+                console.log(fmtLog('authentication.navigate', 'Sending Event AuthOtpFailure', dialogContext));
                 let event = dialogContext.respondWithEvent('AuthOtpFailure', dialogContext.params.lastFulfillmentText);
                 return;
             }
 
             if (context.parameters.validationComplete === '0' && context.parameters.validationReceived === '0') {
-                console.log('Sending Event AuthSendOtp');
+                console.log(fmtLog('authentication.navigate', 'Sending Event AuthSendOtp', dialogContext));
                 let event = dialogContext.respondWithEvent('AuthSendOtp', dialogContext.params.lastFulfillmentText);
                 return;
             }
@@ -96,31 +96,31 @@ const SEQ_AUTH = new Sequence({
                     return;
                 }
                 if (dialogContext.params.offeredAgentDeclined === '1') {
-                    console.log('Calling popSequenceAndNavigate');
+                    console.log(fmtLog('authentication.navigate', 'Calling popSequenceAndNavigate', dialogContext));
                     dialogContext.deleteCtx('skillresetpasswordsms-followup'); // TODO: I think I can remove these, but make sure.
                     dialogContext.popSequenceAndNavigate(SEQ_AUTH_NAME);
                     return;
                 }
             }
 
-            console.log('Calling popSequenceAndNavigate');
+            console.log(fmtLog('authentication.navigate', 'Calling popSequenceAndNavigate', dialogContext));
             dialogContext.deleteCtx('skillresetpasswordsms-followup'); // TODO: I think I can remove these, but make sure.
             dialogContext.popSequenceAndNavigate(SEQ_AUTH_NAME);
         }
 
         if (dialogContext.params.customerIdentified === '0') {
             if (context.parameters.receivedAccountNumber !== '' && context.parameters.accountNumberNotFound === '1') {
-                console.log('Sending Event AuthInvalidAccount');
+                console.log(fmtLog('authentication.navigate', 'Sending Event AuthInvalidAccount', dialogContext));
                 let event = dialogContext.respondWithEvent('AuthInvalidAccount', dialogContext.params.lastFulfillmentText);
                 return;
             }
             
-            console.log('Sending Event AuthGetAccount');
+            console.log(fmtLog('authentication.navigate', 'Sending Event AuthGetAccount', dialogContext));
             let event = dialogContext.respondWithEvent('AuthGetAccount', dialogContext.params.lastFulfillmentText);
             return;
         }
 
-        console.log('action: '+dialogContext.currentAction+', lastFulfillmentText: '+dialogContext.params.lastFulfillmentText);
+        console.log(fmtLog('authentication.navigate', 'action: '+dialogContext.currentAction+', lastFulfillmentText: '+dialogContext.params.lastFulfillmentText, dialogContext));
         dialogContext.respondWithText();
         return;
     }
