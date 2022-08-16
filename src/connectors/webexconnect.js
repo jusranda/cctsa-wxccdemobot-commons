@@ -34,8 +34,8 @@ const CXTR_WXCONNECT_NAME = 'webexconnect';
      * @param {Object} params The constructor parameters.
      */
     constructor(params) {
-        if (params.smsSendOtpUrl == undefined) { throw new Error('smsSendOtpUrl is a required parameter for webexConnectConnector objects.'); }
-        if (params.smsPwResetUrl == undefined) { throw new Error('smsPwResetUrl is a required parameter for webexConnectConnector objects.'); }
+        if (params.smsSendOtpUrl == undefined) { throw new Error('smsSendOtpUrl is a required parameter for WebexConnectConnector objects.'); }
+        if (params.smsPwResetUrl == undefined) { throw new Error('smsPwResetUrl is a required parameter for WebexConnectConnector objects.'); }
 
         params.endpoint = axios;
         params.name = CXTR_WXCONNECT_NAME;
