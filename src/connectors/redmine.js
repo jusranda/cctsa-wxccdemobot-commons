@@ -18,7 +18,21 @@ const Redmine = require('axios-redmine');
 
 const CXTR_REDMINE_NAME = 'redmine';
 
+/**
+ * A Connector for the Redmine REST API.
+ */
 class RedmineConnector extends Connector {
+    /**
+     * Construct a new RedmineConnector instance.
+     * 
+     * @example
+     * const redmineConnector = New RedmineConnector({
+     *     hostname: 'http://cctsa-redmine.outofservice.org',
+     *     apiKey: 'abc123def456abc123def456abc123def456'
+     * });
+     * 
+     * @param {Object} params The constructor parameters.
+     */
     constructor(params) {
         if (params.hostname == undefined) { throw new Error('hostname is a required parameter for RedmineConnector objects.'); }
         if (params.apiKey == undefined) { throw new Error('apiKey is a required parameter for RedmineConnector objects.'); }
@@ -44,6 +58,12 @@ class RedmineConnector extends Connector {
         this.findRedmineUserByMobilePhone = this.findRedmineUserByMobilePhone.bind(this);
     }
 
+    /**
+     * Parse the Redmine REST API user response into a more accessible format.
+     * 
+     * @param {Object} redmineUser  The Redmine REST API user response.
+     * @returns a parsed Redmine User with accessible custom fields.
+     */
     static createResponseUser(redmineUser) {
         let responseUser = {};
         responseUser.id = redmineUser.id;
@@ -87,6 +107,12 @@ class RedmineConnector extends Connector {
         return responseUser;
     }
 
+    /**
+     * Finds a list of Redmine Users by Account ID.
+     * 
+     * @param {string} accountId The account ID.
+     * @returns a parsed Redmine User with accessible custom fields.
+     */
     async findRedmineUsersByAccountId(accountId) {
         this._redmineUsersByAccountFound = [];
         await super.endpoint
@@ -109,6 +135,12 @@ class RedmineConnector extends Connector {
         return this._redmineUsersByAccountFound;
     }
 
+    /**
+     * Finds a list of Redmine Users by Phone Number.
+     * 
+     * @param {string} phoneNumber  The Phone Number.
+     * @returns a parsed Redmine User with accessible custom fields.
+     */
     async findRedmineUserByMobilePhone(phoneNumber) {
         this._redmineUsersByMobilePhoneFound = [];
         await super.endpoint
@@ -131,6 +163,9 @@ class RedmineConnector extends Connector {
         return this._redmineUsersByMobilePhoneFound;
     }
 
+    /**
+     * Resets a password for a Redmine user.
+     */
     async resetRedmineUserPassword(redmineUserId,tempPw) {
         super.endpoint
             .get_user_by_id(redmineUserId, { include: 'memberships,groups' })
@@ -147,6 +182,16 @@ class RedmineConnector extends Connector {
             .catch(err => { console.log(err); });
     }
 
+    /**
+     * Creates a new Redmine Issue.
+     * 
+     * @param {string} subject       The issue subject.
+     * @param {string} description   The issue description.
+     * @param {string} accountNumber The issue account number.
+     * @param {string} source        The issue source.
+     * @param {string} initiatorId   The issue initiator.
+     * @returns the newly created Redmine Issue.
+     */
     async createRedmineIssue(subject,description,accountNumber,source,initiatorId) {
         this._redmineNewIssue = {};
         const issue = {
@@ -174,6 +219,13 @@ class RedmineConnector extends Connector {
         return this._redmineNewIssue;
     }
 
+    /**
+     * Updates nodes for a Redmine Issue.
+     * 
+     * @param {number} issueId       The Redmine Issue ID.
+     * @param {string} notes         The notes.
+     * @param {Boolean} privateFlag   The note privacy flag.
+     */
     async updateRedmineIssueNotes(issueId,notes,privateFlag='false') {
         const issue = {
             issue: {

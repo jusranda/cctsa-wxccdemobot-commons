@@ -18,6 +18,7 @@ const { registerModuleWelcome } = require("./sequences/welcome");
 const { registerModuleAuthentication } = require("./sequences/authentication");
 const { registerModuleReasonForContact } = require("./sequences/reasonforcontact");
 const { RedmineConnector,CXTR_REDMINE_NAME } = require("./connectors/redmine");
+const { generatePassword } = require("./common");
 
 /**
  * Registers the sequences and intents for all commons modules.
@@ -31,4 +32,4 @@ function registerCommonModules(sequenceManager, intentManager) {
     registerModuleReasonForContact(sequenceManager, intentManager);
 }
 
-module.exports = {registerCommonModules,RedmineConnector,CXTR_REDMINE_NAME};
+module.exports = {generatePassword,registerCommonModules,RedmineConnector,CXTR_REDMINE_NAME};
