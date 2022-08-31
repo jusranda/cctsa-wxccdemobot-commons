@@ -1,4 +1,4 @@
-/**
+JdsConnector  /**
  * Copyright 2022 Justin Randall, Cisco Systems Inc. All Rights Reserved.
  * 
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU
@@ -17,9 +17,13 @@ const { IntentManager, SequenceManager } = require("codingforconvos");
 const { registerModuleWelcome } = require("./sequences/welcome");
 const { registerModuleAuthentication } = require("./sequences/authentication");
 const { registerModuleReasonForContact } = require("./sequences/reasonforcontact");
-const { RedmineConnector,CXTR_REDMINE_NAME } = require("./connectors/redmine");
-const { WebexConnectConnector,CXTR_WXCONNECT_NAME } = require("./connectors/webexconnect");
-const { generatePassword } = require("./common");
+const { registerModuleResetPassword } = require("./sequences/resetpasswd");
+const { registerModuleCommon } = require("./sequences/common");
+const { registerModuleCovidScreen } = require("./sequences/covidscreen");
+const { RedmineConnector } = require("./connectors/redmine");
+const { WebexConnectConnector } = require("./connectors/webexconnect");
+const { GoogleCalendarConnector } = require("./connectors/googlecalendar");
+const { JdsConnector } = require("./connectors/jds");
 
 /**
  * Registers the sequences and intents for all commons modules.
@@ -31,6 +35,8 @@ function registerCommonModules(sequenceManager, intentManager) {
     registerModuleWelcome(sequenceManager, intentManager);
     registerModuleAuthentication(sequenceManager, intentManager);
     registerModuleReasonForContact(sequenceManager, intentManager);
+    registerModuleResetPassword(sequenceManager, intentManager);
+    registerModuleCommon(sequenceManager, intentManager);
 }
 
-module.exports = {generatePassword,registerCommonModules,RedmineConnector,CXTR_REDMINE_NAME,WebexConnectConnector,CXTR_WXCONNECT_NAME};
+module.exports = {registerCommonModules,registerModuleCovidScreen,RedmineConnector,WebexConnectConnector,GoogleCalendarConnector,JdsConnector};
