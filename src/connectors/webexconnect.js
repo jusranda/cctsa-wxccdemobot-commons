@@ -36,6 +36,8 @@ const CXTR_WXCONNECT_NAME = 'webexconnect';
     constructor(params) {
         if (params.smsSendOtpUrl == undefined) { throw new Error('smsSendOtpUrl is a required parameter for WebexConnectConnector objects.'); }
         if (params.smsPwResetUrl == undefined) { throw new Error('smsPwResetUrl is a required parameter for WebexConnectConnector objects.'); }
+        if (params.emailSendOtpUrl == undefined) { throw new Error('emailSendOtpUrl is a required parameter for WebexConnectConnector objects.'); }
+        if (params.emailPwResetUrl == undefined) { throw new Error('emailPwResetUrl is a required parameter for WebexConnectConnector objects.'); }
 
         params.endpoint = axios;
         params.name = CXTR_WXCONNECT_NAME;
@@ -45,6 +47,17 @@ const CXTR_WXCONNECT_NAME = 'webexconnect';
 
         this.sendOtpBySms = this.sendOtpBySms.bind(this);
         this.sendPwresetLinkBySms = this.sendPwresetLinkBySms.bind(this);
+        this.sendOtpByEmail = this.sendOtpByEmail.bind(this);
+        this.sendPwresetLinkByEmail = this.sendPwresetLinkByEmail.bind(this);
+    }
+
+    /**
+     * Get the static name of the connector.
+     * 
+     * @returns the static name of the connector.
+     */
+    static name() {
+        return CXTR_WXCONNECT_NAME;
     }
 
     /**
@@ -78,6 +91,44 @@ const CXTR_WXCONNECT_NAME = 'webexconnect';
         
         console.log(JSON.stringify(data));
         axios.post(super.params.smsSendOtpUrl, data, {
+            headers:{ 'Content-Type': 'application/json'}
+        })
+        .then((response) => {
+            console.log("Success");
+        })
+        .catch((error) => {
+            console.log("Error - Start");
+            if (error.response) {
+                console.log(error.response.data);
+                console.log(error.response.status);
+                console.log(error.response.headers);
+            }
+            console.log("Error - End");
+        });
+    }
+    
+    /**
+     * Sends an one-time-passcode (OTP) by Email.
+     * 
+     * @param {string} sessionId        The Dialogflow ES session ID.
+     * @param {string} emailDest        The destination email address.
+     * @param {string} pin              The 4-digit one-time-passcode (OTP).
+     * @param {string} customerName     The customer first name.
+     * @param {string} companyName      The company name.
+     * @param {string} contactChannel   The interaction channel name.
+     */
+     async sendOtpByEmail(sessionId,emailDest,pin,customerName,companyName,contactChannel) {
+        var data = `{
+            "name": "${customerName}",
+            "emailDest": "${emailDest}",
+            "pin": "${pin}",
+            "sessionId": "${sessionId}",
+            "companyName": "${companyName}",
+            "contactChannel": "${contactChannel}"
+        }`;
+        
+        console.log(JSON.stringify(data));
+        axios.post(super.params.emailSendOtpUrl, data, {
             headers:{ 'Content-Type': 'application/json'}
         })
         .then((response) => {
@@ -131,6 +182,44 @@ const CXTR_WXCONNECT_NAME = 'webexconnect';
             console.log("Error - End");
         });
     }
+    
+    /**
+     * Sends a password reset link by SMS.
+     * 
+     * @param {string} sessionId        The Dialogflow ES session ID.
+     * @param {string} emailDest        The destination email.
+     * @param {string} customerName     The customer first name.
+     * @param {string} companyName      The company name.
+     * @param {string} contactChannel   The interaction channel name.
+     * @param {string} tempPw           The new temporary password.
+     */
+    async sendPwresetLinkByEmail(sessionId,emailDest,customerName,companyName,contactChannel,tempPw) {
+        var data = `{
+            "name": "${customerName}",
+            "emailDest": "${emailDest}",
+            "tempPw": "${tempPw}",
+            "sessionId": "${sessionId}",
+            "companyName": "${companyName}",
+            "contactChannel": "${contactChannel}"
+        }`;
+        
+        console.log(JSON.stringify(data));
+        axios.post(super.params.emailPwResetUrl, data, {
+            headers:{ 'Content-Type': 'application/json'}
+        })
+        .then((response) => {
+            console.log('Success');
+        })
+        .catch((error) => {
+            console.log("Error - Start");
+            if (error.response) {
+                console.log(error.response.data);
+                console.log(error.response.status);
+                console.log(error.response.headers);
+            }
+            console.log("Error - End");
+        });
+    }
 }
 
-module.exports = {CXTR_WXCONNECT_NAME,WebexConnectConnector};
+module.exports = {WebexConnectConnector};
