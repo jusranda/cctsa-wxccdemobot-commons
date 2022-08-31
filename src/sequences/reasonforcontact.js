@@ -17,122 +17,133 @@ const { Intent, IntentManager, Sequence, SequenceManager, fmtLog } = require("co
 
 const CTX_RFC_NAME = 'reasonforcontact';
 
-/////////////////////////////////////////
-// Create Reason For Contact Sequence. //
-/////////////////////////////////////////
-
-const SEQ_RFC = new Sequence({
-    name: CTX_RFC_NAME, // Sequence name, also used for Dialogflow context name.
-    activity: 'figuring out how I can help you', // Activity description, used in course correction.
-    authRequired: false,
-    breakIntents: [ // Intents that break from the core flow before attempting sequence navigation.
-        { action: 'skill.reasonforcontact', trigger: '1' },
-        { action: 'skill.reasonforcontact.fallback', trigger: '1' }
-    ],
-    params: {
-        askedReasonForCalling: '0'
-    },
-    createCase: (contextManager, agent, ctxSessionProps) => { // Create a case.
-        let newCase = {
-            subject: 'Failed to identify navigate conversation.',
-            description: 'Something went wrong.',
-            note: 'Case created.'
-        };
-        return newCase;
-    },
-    navigate: (dialogContext) => { // Navigate the sequence forward.
-        //let context = dialogContext.getOrCreateCtx(CTX_RFC_NAME);
-
-        if (dialogContext.currentAction === 'skill.resetpassword') {
-            let authEvent = dialogContext.respondWithEvent('AuthSendOtp', dialogContext.params.lastFulfillmentText);
-            return;
-        }
-        
-        if (dialogContext.params.sayGoodbye === '1') {
-            if (dialogContext.params.saidGoodbye === '0') {
-                let authEvent = dialogContext.respondWithEvent('SayGoodbye', dialogContext.params.lastFulfillmentText);
-                return;
-            }
-
-            let authEvent = dialogContext.respondWithEvent('Handled', dialogContext.params.lastFulfillmentText);
-            return;
-        }
-
-        console.log(fmtLog('reasonforcontact.navigate', 'action: '+dialogContext.currentAction+', lastFulfillmentText: '+dialogContext.params.lastFulfillmentText, dialogContext));
-        let askReasonForContactEvent = dialogContext.respondWithEvent('AskReasonForContact', dialogContext.params.lastFulfillmentText);
-        return;
-    }
-});
-
-//////////////////////////////////////////////////
-// Register Reason For Contact Intent Handlers. //
-//////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+// Register Reason for Contact Sequence and Intent Handlers. //
+///////////////////////////////////////////////////////////////
     
-const INTENT_RFCASK = new Intent({
-    action: 'skill.reasonforcontact',
-    sequenceName: CTX_RFC_NAME,
-    handler: (dialogContext) => {
-        
-        if (dialogContext.params.triggeredSkill === '1') {
-            let updatedText = dialogContext.dialogflowAgent.consoleMessages[0].text
-                .replace(' can ', ' else can ')
-                .replace(' may ', ' else may ')
-                ;
-                console.log('Updated reason for contact: '+updatedText);
-                dialogContext.dialogflowAgent.consoleMessages[0].text = updatedText;
-        }
-
-        if (dialogContext.params.advisoryNotice !== '' && dialogContext.params.triggeredSkill === '0') {
-            dialogContext.dialogflowAgent.consoleMessages[0].text = dialogContext.params.advisoryNotice + '  ' + dialogContext.dialogflowAgent.consoleMessages[0].text;
-        }
-        
-        dialogContext.setSessionParam('triggeredSkill', '1');
-        dialogContext.appendFulfillmentText();
-        return;
-    }
-});
-const INTENT_RFCASK_FALLBACK = new Intent({
-    action: 'skill.reasonforcontact.fallback',
-    sequenceName: CTX_RFC_NAME,
-    handler: (dialogContext) => {
-        dialogContext.setFulfillmentText();
-        return;
-    }
-});
-const INTENT_RFCASK_ASKWELLBEING_POSTIVE = new Intent({
-    action: 'skill.reasonforcontact.wellbeing.positive',
-    sequenceName: CTX_RFC_NAME,
-    handler: (dialogContext) => {
-        dialogContext.setFulfillmentText();
-        if (parseInt(dialogContext.params.helpCounter) >= 1) {
-            dialogContext.setSessionParam('sayGoodbye', '1');
-            return;
-        }
-    }
-});
-const INTENT_RFC_RESETPASSWD = new Intent({
-    action: 'skill.resetpassword',
-    sequenceName: CTX_RFC_NAME,
-    handler: (dialogContext) => {
-        dialogContext.setFulfillmentText();
-        dialogContext.pushSequence('passwordreset');
-        return;
-    }
-});
-
 /**
- * Registers the sequences and intents for the welcome module.
+ * Registers the sequences and intents for the reason for contact module.
  * 
  * @param {SequenceManager} sequenceManager The sequencer manager.
  * @param {IntentManager} intentManager     The intent manager.
  */
  function registerModuleReasonForContact(sequenceManager,intentManager) {
-    sequenceManager.registerSequence(SEQ_RFC);
+    // Register Sequence.
+    sequenceManager.registerSequence(new Sequence({
+        name: CTX_RFC_NAME, // Sequence name, also used for Dialogflow context name.
+        activity: 'figuring out how I can help you', // Activity description, used in course correction.
+        authRequired: false,
+        breakIntents: [ // Intents that break from the core flow before attempting sequence navigation.
+            { action: 'skill.reasonforcontact', trigger: '1' },
+            //{ action: 'skill.reasonforcontact.fallback', trigger: '1' }
+        ],
+        params: {
+            askedReasonForCalling: '0'
+        },
+        createCase: (contextManager, agent, ctxSessionProps) => { // Create a case.
+            let newCase = {
+                subject: 'Failed to identify navigate conversation.',
+                description: 'Something went wrong.',
+                note: 'Case created.'
+            };
+            return newCase;
+        },
+        navigate: (dialogContext) => { // Navigate the sequence forward.
+            //let context = dialogContext.getOrCreateCtx(CTX_RFC_NAME);
+    
+            if (dialogContext.currentAction === 'skill.resetpassword') {
+                let authEvent = dialogContext.respondWithEvent('AuthSendOtp', dialogContext.params.lastFulfillmentText);
+                return;
+            }
+            
+            if (dialogContext.currentAction === 'skill.covidscreen') {
+                let authEvent = dialogContext.respondWithEvent('CovidScreenRequired', dialogContext.params.lastFulfillmentText);
+                return;
+            }
+            
+            if (dialogContext.params.sayGoodbye === '1') {
+                if (dialogContext.params.saidGoodbye === '0') {
+                    let authEvent = dialogContext.respondWithEvent('SayGoodbye', dialogContext.params.lastFulfillmentText);
+                    return;
+                }
+    
+                let authEvent = dialogContext.respondWithEvent('Handled', dialogContext.params.lastFulfillmentText);
+                return;
+            }
+    
+            console.log(fmtLog('reasonforcontact.navigate', 'action: '+dialogContext.currentAction+', lastFulfillmentText: '+dialogContext.params.lastFulfillmentText, dialogContext));
+            let askReasonForContactEvent = dialogContext.respondWithEvent('AskReasonForContact', dialogContext.params.lastFulfillmentText);
+            return;
+        }
+    }));
 
-    intentManager.registerIntent(INTENT_RFCASK);
-    intentManager.registerIntent(INTENT_RFCASK_FALLBACK);
-    intentManager.registerIntent(INTENT_RFCASK_ASKWELLBEING_POSTIVE);
-    intentManager.registerIntent(INTENT_RFC_RESETPASSWD);
+
+
+    // Register Intent Handlers.
+    intentManager.registerIntent(new Intent({
+        action: 'skill.reasonforcontact',
+        sequenceName: CTX_RFC_NAME,
+        handler: (dialogContext) => {
+            
+            if (dialogContext.params.triggeredSkill === '1') {
+                let updatedText = dialogContext.dialogflowAgent.consoleMessages[0].text
+                    .replace(' can ', ' else can ')
+                    .replace(' may ', ' else may ')
+                    ;
+                    console.log('Updated reason for contact: '+updatedText);
+                    dialogContext.dialogflowAgent.consoleMessages[0].text = updatedText;
+            }
+    
+            if (dialogContext.params.advisoryNotice !== '' && dialogContext.params.triggeredSkill === '0') {
+                dialogContext.dialogflowAgent.consoleMessages[0].text = dialogContext.params.advisoryNotice + '  ' + dialogContext.dialogflowAgent.consoleMessages[0].text;
+            }
+            
+            dialogContext.setSessionParam('triggeredSkill', '1');
+            dialogContext.appendFulfillmentText();
+            return;
+        }
+    }));
+
+    intentManager.registerIntent(new Intent({
+        action: 'skill.reasonforcontact.fallback',
+        sequenceName: CTX_RFC_NAME,
+        handler: (dialogContext) => {
+            dialogContext.setFulfillmentText();
+            return;
+        }
+    }));
+
+    intentManager.registerIntent(new Intent({
+        action: 'skill.reasonforcontact.wellbeing.positive',
+        sequenceName: CTX_RFC_NAME,
+        handler: (dialogContext) => {
+            dialogContext.setFulfillmentText();
+            if (parseInt(dialogContext.params.helpCounter) >= 1) {
+                dialogContext.setSessionParam('sayGoodbye', '1');
+                return;
+            }
+        }
+    }));
+
+    intentManager.registerIntent(new Intent({
+        action: 'skill.resetpassword',
+        sequenceName: CTX_RFC_NAME,
+        handler: (dialogContext) => {
+            dialogContext.setFulfillmentText();
+            dialogContext.pushSequence('passwordreset');
+            return;
+        }
+    }));
+
+    intentManager.registerIntent(new Intent({
+        action: 'skill.covidscreen',
+        sequenceName: CTX_RFC_NAME,
+        handler: (dialogContext) => {
+            dialogContext.setFulfillmentText();
+            dialogContext.pushSequence('covidscreen');
+            return;
+        }
+    }));
 }
 
 module.exports = {registerModuleReasonForContact};
