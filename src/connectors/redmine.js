@@ -13,10 +13,21 @@
  * see <https://www.gnu.org/licenses/>.
  */
 
-const { Connector } = require("codingforconvos");
+const { Connector,fmtLog } = require("codingforconvos");
 const Redmine = require('axios-redmine');
 
 const CXTR_REDMINE_NAME = 'redmine';
+
+const CTX_AUTH = 'authentication';
+
+const REDMINE_SOURCES = {
+    'phone': 'Phone',
+    'chat': 'Chat',
+    'sms': 'SMS',
+    'facebookMessenger': 'Facebook Messenger',
+    'whatsApp': 'WhatsApp',
+    'web': 'Web'
+};
 
 /**
  * A Connector for the Redmine REST API.
@@ -50,12 +61,30 @@ class RedmineConnector extends Connector {
 
         super(params);
 
-        this._redmineUsersByAccountFound = [];
+        this._redmineUsersByEmail = [];
         this._redmineUsersByMobilePhoneFound = [];
         this._redmineNewIssue = {};
 
         this.findRedmineUsersByAccountId = this.findRedmineUsersByAccountId.bind(this);
         this.findRedmineUserByMobilePhone = this.findRedmineUserByMobilePhone.bind(this);
+    }
+
+    /**
+     * Get the Redmine channel source.
+     * 
+     * @returns the Redmine channel source.
+     */
+    static redmineSource(wxccChannel) {
+        return REDMINE_SOURCES[wxccChannel];
+    }
+    
+    /**
+     * Get the static name of the connector.
+     * 
+     * @returns the static name of the connector.
+     */
+    static name() {
+        return CXTR_REDMINE_NAME;
     }
 
     /**
@@ -108,13 +137,40 @@ class RedmineConnector extends Connector {
     }
 
     /**
+     * Finds a list of Redmine Users by Email.
+     * 
+     * @param {string} email The email.
+     * @returns a parsed Redmine User with accessible custom fields.
+     */
+     async findRedmineUsersByEmail(email) {
+        this._redmineUsersByEmail = [];
+        await super.endpoint
+            .users({ include: 'memberships,groups' })
+            .then(response => {
+                response.data.users.forEach(user => {
+                    user.customFieldsByName = {};
+                    user.custom_fields.forEach(customField => {
+                        user.customFieldsByName[customField.name] = customField;
+                    });
+
+                    if (user.mail === email) {
+                        this._redmineUsersByEmail.push(RedmineConnector.createResponseUser(user));
+                    }
+                });
+            })
+            .catch(err => { console.error(err); });
+
+        return this._redmineUsersByEmail;
+    }
+
+    /**
      * Finds a list of Redmine Users by Account ID.
      * 
      * @param {string} accountId The account ID.
      * @returns a parsed Redmine User with accessible custom fields.
      */
     async findRedmineUsersByAccountId(accountId) {
-        this._redmineUsersByAccountFound = [];
+        this._redmineUsersByEmail = [];
         await super.endpoint
             .users({ include: 'memberships,groups' })
             .then(response => {
@@ -126,13 +182,13 @@ class RedmineConnector extends Connector {
 
                     let cfAccountId = user.customFieldsByName['Customer Account ID'].value;
                     if (cfAccountId === accountId) {
-                        this._redmineUsersByAccountFound.push(RedmineConnector.createResponseUser(user));
+                        this._redmineUsersByEmail.push(RedmineConnector.createResponseUser(user));
                     }
                 });
             })
             .catch(err => { console.error(err); });
 
-        return this._redmineUsersByAccountFound;
+        return this._redmineUsersByEmail;
     }
 
     /**
@@ -185,14 +241,21 @@ class RedmineConnector extends Connector {
     /**
      * Creates a new Redmine Issue.
      * 
-     * @param {string} subject       The issue subject.
-     * @param {string} description   The issue description.
-     * @param {string} accountNumber The issue account number.
-     * @param {string} source        The issue source.
-     * @param {string} initiatorId   The issue initiator.
+     * @param {Object} newCase              The Redmine Issue data.
+     * @param {DialogContext} dialogContext The dialog context.
      * @returns the newly created Redmine Issue.
      */
-    async createRedmineIssue(subject,description,accountNumber,source,initiatorId) {
+    async createRedmineTriage(newCase,dialogContext,triage) {
+        let accountNumber = dialogContext.params.accountNumber; // accountId
+        let source = RedmineConnector.redmineSource(dialogContext.params.interactionSource);
+        let initiatorId = dialogContext.params.redmineUserId; // Initiator
+
+        let subject = newCase.subject;
+        let description = newCase.description;
+        let trackerId = newCase.trackerId != undefined ? newCase.trackerId : 8; // Default tracker = 'Triage'
+        let statusId = newCase.statusId != undefined ? newCase.statusId : 1; // Default status = 'New'
+        let priorityId = newCase.priorityId != undefined ? newCase.priorityId : 4; // Default priority = 'Normal'
+
         this._redmineNewIssue = {};
         const issue = {
             issue: {
@@ -200,7 +263,60 @@ class RedmineConnector extends Connector {
                 subject: subject,
                 description: description,
                 //assigned_to_id: 5, // jusranda
-                priority_id: 4, // Normal
+                tracker_id: trackerId,
+                status_id: statusId,
+                priority_id: priorityId,
+                custom_fields: [
+                    { id: 5, value: accountNumber }, // Customer ID
+                    { id: 12, value: source }, // Source
+                    { id: 13, value: initiatorId }, // Initiator.
+                    { id: 15, value: triage.symptoms }, // Symptoms
+                    { id: 16, value: triage.countryName }, // Countries Visited (< 14 Days)
+                    { id: 17, value: triage.diagnosedWithCovid },
+                    { id: 18, value: triage.diagnosedWithCovidDate },
+                    { id: 19, value: triage.livesWithCovid }
+                ],
+            }
+        };
+
+        await super.endpoint
+            .create_issue(issue)
+            .then(response => {
+                this._redmineNewIssue = response.data.issue;
+            })
+            .catch(err => { console.log(err); });
+
+        return this._redmineNewIssue;
+    }
+
+    /**
+     * Creates a new Redmine Issue.
+     * 
+     * @param {Object} newCase              The Redmine Issue data.
+     * @param {DialogContext} dialogContext The dialog context.
+     * @returns the newly created Redmine Issue.
+     */
+    async createRedmineIssue(newCase,dialogContext) {
+        let accountNumber = dialogContext.params.accountNumber; // accountId
+        let source = RedmineConnector.redmineSource(dialogContext.params.interactionSource);
+        let initiatorId = dialogContext.params.redmineUserId; // Initiator
+
+        let subject = newCase.subject;
+        let description = newCase.description;
+        let trackerId = newCase.trackerId != undefined ? newCase.trackerId : 7; // Default tracker = 'Case'
+        let statusId = newCase.statusId != undefined ? newCase.statusId : 1; // Default status = 'New'
+        let priorityId = newCase.priorityId != undefined ? newCase.priorityId : 4; // Default priority = 'Normal'
+
+        this._redmineNewIssue = {};
+        const issue = {
+            issue: {
+                project_id: 11,
+                subject: subject,
+                description: description,
+                //assigned_to_id: 5, // jusranda
+                tracker_id: trackerId,
+                status_id: statusId,
+                priority_id: priorityId,
                 custom_fields: [
                     { id: 5, value: accountNumber },
                     { id: 12, value: source },
@@ -242,6 +358,111 @@ class RedmineConnector extends Connector {
             })
             .catch(err => { console.log(err); });
     }
+
+    static populateFromRedmineUser(ctxSessionProps, redmineUser) {
+        ctxSessionProps.parameters.smsNumber = redmineUser.mobileNumber;
+        ctxSessionProps.parameters.redmineUserId = Math.floor(redmineUser.id).toString(); // convert from float->int->string
+        ctxSessionProps.parameters.mail = redmineUser.mail;
+        ctxSessionProps.parameters.customerFirstName = redmineUser.firstName;
+        ctxSessionProps.parameters.customerLastName = redmineUser.lastName;
+        ctxSessionProps.parameters.redmineOpenCaseId = redmineUser.openCaseId;
+        ctxSessionProps.parameters.accountNumber = redmineUser.accountNumber;
+        ctxSessionProps.parameters.accountTier = redmineUser.accountTier;
+        ctxSessionProps.parameters.accountStatus = redmineUser.accountStatus;
+        ctxSessionProps.parameters.preferredLanguage = redmineUser.preferredLanguage;
+        ctxSessionProps.parameters.advisory = redmineUser.advisory;
+    
+        return ctxSessionProps;
+    }
+    
+    static async populateFromRedmineLookup(ctxSessionProps, dialogContext) {
+        if (ctxSessionProps.parameters.callingNumber !== '') {
+            console.log(fmtLog('populateFromRedmineLookup', 'Lookup Redmine User by Calling Number '+ctxSessionProps.parameters.callingNumber, dialogContext));
+            return await RedmineConnector.populateFromRedmineMobileNumber(ctxSessionProps, ctxSessionProps.parameters.callingNumber, dialogContext);
+        } else if (ctxSessionProps.parameters.smsNumber !== '') {
+            console.log(fmtLog('populateFromRedmineLookup', 'Lookup Redmine User by SMS Number '+ctxSessionProps.parameters.smsNumber, dialogContext));
+            return await RedmineConnector.populateFromRedmineMobileNumber(ctxSessionProps, ctxSessionProps.parameters.smsNumber, dialogContext);
+        } else if (ctxSessionProps.parameters.mail !== '') {
+            console.log(fmtLog('populateFromRedmineLookup', 'Lookup Redmine User by Email '+ctxSessionProps.parameters.mail, dialogContext));
+            return await RedmineConnector.populateFromRedmineEmail(ctxSessionProps, ctxSessionProps.parameters.mail, dialogContext);
+        }
+        return ctxSessionProps;
+    }
+    
+    static async populateFromRedmineMobileNumber(ctxSessionProps, phoneNumber, dialogContext) {
+        console.log('Creating the CTX_AUTH sequence.');
+        let context = dialogContext.getOrCreateCtx(CTX_AUTH);
+    
+        console.log('findRedmineUserByMobilePhone: '+phoneNumber);
+        const redmineUsersByMobilePhoneFound = await dialogContext.connectorManager.get(RedmineConnector.name()).findRedmineUserByMobilePhone(phoneNumber);
+    
+        if (redmineUsersByMobilePhoneFound.length === 0) {
+            context.parameters.phoneNumberNotFound = '1';
+            dialogContext.dialogflowAgent.context.set(context);
+            return ctxSessionProps;
+        }
+    
+        let resultUser = redmineUsersByMobilePhoneFound[0]; // TODO: Handle multiple user disambiguation in future.
+        if (resultUser.mobileNumber == null) {
+            console.log('Mobile Phone field not found for user: '+JSON.stringify(resultUser));
+            context.parameters.phoneNumberNotFound = '1';
+            dialogContext.dialogflowAgent.context.set(context);
+            return ctxSessionProps;
+        }
+    
+        context.parameters.phoneNumberFound = '1';
+        context.parameters.validatedBy = 'Calling Number';
+        dialogContext.dialogflowAgent.context.set(context);
+    
+        ctxSessionProps.parameters.customerIdentified = '1';
+        ctxSessionProps.parameters.customerIdentifiedBy = 'Calling Number';
+        dialogContext.dialogflowAgent.context.set(ctxSessionProps);
+    
+        ctxSessionProps = RedmineConnector.populateFromRedmineUser(ctxSessionProps, resultUser);
+        dialogContext.dialogflowAgent.context.set(ctxSessionProps);
+    
+        console.log('findRedmineUserByMobilePhone: ' + JSON.stringify(resultUser));
+    
+        return ctxSessionProps;
+    }
+
+    static async populateFromRedmineEmail(ctxSessionProps, email, dialogContext) {
+        console.log('Creating the CTX_AUTH sequence.');
+        let context = dialogContext.getOrCreateCtx(CTX_AUTH);
+    
+        console.log('populateFromRedmineEmail: '+email);
+        const redmineUsersByEmailFound = await dialogContext.connectorManager.get(RedmineConnector.name()).findRedmineUsersByEmail(email);
+    
+        if (redmineUsersByEmailFound.length === 0) {
+            context.parameters.emailNotFound = '1';
+            dialogContext.dialogflowAgent.context.set(context);
+            return ctxSessionProps;
+        }
+    
+        let resultUser = redmineUsersByEmailFound[0]; // TODO: Handle multiple user disambiguation in future.
+        if (resultUser.mail == null) {
+            console.log('email field not found for user: '+JSON.stringify(resultUser));
+            context.parameters.emailNotFound = '1';
+            dialogContext.dialogflowAgent.context.set(context);
+            return ctxSessionProps;
+        }
+    
+        context.parameters.emailFound = '1';
+        context.parameters.validatedBy = 'Email';
+        dialogContext.dialogflowAgent.context.set(context);
+    
+        ctxSessionProps.parameters.customerIdentified = '1';
+        ctxSessionProps.parameters.customerIdentifiedBy = 'Email';
+        dialogContext.dialogflowAgent.context.set(ctxSessionProps);
+    
+        ctxSessionProps = RedmineConnector.populateFromRedmineUser(ctxSessionProps, resultUser);
+        dialogContext.dialogflowAgent.context.set(ctxSessionProps);
+    
+        console.log('populateFromRedmineEmail: ' + JSON.stringify(resultUser));
+    
+        return ctxSessionProps;
+    }
+        
 }
 
-module.exports = {CXTR_REDMINE_NAME,RedmineConnector};
+module.exports = {RedmineConnector};
