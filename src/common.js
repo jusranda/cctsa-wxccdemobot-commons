@@ -22,8 +22,8 @@ function getJdsPerson(dialogContext) {
     person.identityAlias = getIdentityAlias(dialogContext);
     person.firstName = dialogContext.params.customerFirstName;
     person.lastName = dialogContext.params.customerLastName;
-    person.phone = '+1'+dialogContext.params.callingNumber;
-    person.email = dialogContext.params.mail;
+    person.phone = '+1'+dialogContext.params.identityPhoneNumber;
+    person.email = dialogContext.params.identityEmail;
 
     return person;
 }
