@@ -451,10 +451,10 @@ async function injectPasswdResetFailureEvent(dialogContext) {
             await injectPasswdResetSuccessEvent(dialogContext);
 
             dialogContext.appendFulfillmentText();
+            dialogContext.setCurrentParam('notifiedSuccess', '1');
     
             let helpCounter = parseInt(dialogContext.params.helpCounter) + 1;
             dialogContext.setSessionParam('helpCounter', helpCounter.toString());
-            dialogContext.setCurrentParam('notifiedSuccess', '1');
             return;
         }
     }));
