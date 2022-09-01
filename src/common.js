@@ -33,7 +33,7 @@ IDENTITY_ALIAS.set('phone', getIdentityPhoneNumber);
 IDENTITY_ALIAS.set('chat', getIdentityEmail);
 IDENTITY_ALIAS.set('sms', getIdentitySmsNumber);
 IDENTITY_ALIAS.set('facebookMessenger', getIdentityFbMessengerId);
-IDENTITY_ALIAS.set('whatsApp', getIdentityWhatsAppNumber);
+IDENTITY_ALIAS.set('whatsapp', getIdentityWhatsAppNumber);
 IDENTITY_ALIAS.set('web', getIdentityEmail);
 
 function getIdentityAlias(dialogContext) {
