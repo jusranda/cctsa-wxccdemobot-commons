@@ -83,7 +83,7 @@ async function injectJdsEvent(dialogContext, origin, dataParams) {
 
 async function createRedmineIssue (dialogContext) {
     const redmineApi = dialogContext.connectorManager.get(RedmineConnector.name());
-    let newCase = dialogContext.currentSequence.createCase(dialogContext.contextManager, dialogContext.dialogflowAgent, dialogContext.sessionParams);
+    let newCase = dialogContext.currentSequence.createCase(dialogContext);
             
     const redmineNewIssue = await redmineApi.createRedmineIssue(newCase, dialogContext);
     console.log('redmineNewIssue.id: '+redmineNewIssue.id);
