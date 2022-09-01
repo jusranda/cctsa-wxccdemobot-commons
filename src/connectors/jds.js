@@ -19,7 +19,7 @@ const axios = require('axios');
 const CXTR_JDS_NAME = 'jds';
 
 const JDS_CHANNEL_TYPES = {
-    'phone': 'Phone',
+    'phone': 'telephony',
     'chat': 'Chat',
     'sms': 'SMS',
     'facebookMessenger': 'Messenger',
