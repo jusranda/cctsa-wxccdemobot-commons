@@ -108,7 +108,8 @@ const JDS_CHANNEL_TYPES = {
 
         let eventParams = {
             "taskId": uuid,
-            "origin": params.origin,
+            //"origin": params.origin,
+            "origin": params.person.identityAlias,
             "createdTime": Date.now(),
             "channelType": params.channelType,
             "firstName": params.person.firstName,
