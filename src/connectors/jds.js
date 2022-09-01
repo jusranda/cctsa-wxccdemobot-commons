@@ -110,8 +110,6 @@ const JDS_CHANNEL_TYPES = {
             "email": params.person.email
         }
 
-        let personAlias = (params.person.phone != undefined) ? params.person.phone : params.person.email;
-
         for (var param in params.dataParams) {
             if (Object.prototype.hasOwnProperty.call(params.dataParams, param)) {
                 eventParams[param] = params.dataParams[param];
@@ -125,7 +123,7 @@ const JDS_CHANNEL_TYPES = {
             "specVersion": "1.0",
             "type": type,
             "source": source,
-            "person": personAlias,
+            "person": params.person.identityAlias,
             "dataContentType": "application/json",
             "data": eventParams
         };
