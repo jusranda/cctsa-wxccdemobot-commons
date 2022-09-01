@@ -1,4 +1,4 @@
-JdsConnector  /**
+/**
  * Copyright 2022 Justin Randall, Cisco Systems Inc. All Rights Reserved.
  * 
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU
