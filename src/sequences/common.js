@@ -14,7 +14,6 @@
  */
 
 const { Intent, IntentManager, Sequence, SequenceManager, fmtLog } = require("codingforconvos");
-const { RedmineConnector } = require("../connectors/redmine");
 
 // Define Sequence Name Constants.
 const SEQ_COMMON_NAME = 'common';
@@ -173,23 +172,8 @@ function registerModuleCommon(sequenceManager,intentManager) {
         action: 'common.tickettransfer',
         sequenceName: SEQ_COMMON_NAME,
         handler: async (dialogContext) => {
-            const redmineApi = dialogContext.connectorManager.get(RedmineConnector.name());
-            let newCase = dialogContext.currentSequence.createCase(dialogContext.contextManager, dialogContext.dialogflowAgent, dialogContext.sessionParams);
-            
-            const redmineNewIssue = await redmineApi.createRedmineIssue(newCase, dialogContext);
-        
-            console.log('redmineNewIssue.id: '+redmineNewIssue.id);
-
-            dialogContext.connectorManager.get(RedmineConnector.name()).updateRedmineIssueNotes(redmineNewIssue.id, newCase.note);
-
-            dialogContext.setSessionParams({
-                'offeredAgent': '1',
-                'ticketNumber': redmineNewIssue.id.toString(),
-                'redmineOpenCaseId': redmineNewIssue.id.toString()
-            });
-
-            let responseMessage = 'I\'ve created ticket '+redmineNewIssue.id+'.  Would you like me to connect you with an agent now?';
-
+            let responseMessage = 'I\'ve created ticket '+dialogContext.params.ticketNumber+'.  Would you like me to connect you with an agent now?';
+            dialogContext.setSessionParam('offeredAgent', '1');
             dialogContext.appendFulfillmentText(responseMessage);
             return;
         }
