@@ -140,49 +140,6 @@ async function injectPasswdResetFailureEvent(dialogContext) {
             notifiedSuccess: '0',
             notifiedFailure: '0'
         },
-        createCase: (dialogContext) => { // Create a case.
-            let context = dialogContext.getOrCreateCtx(SEQ_PWRESET_NAME);
-    
-            let subject = 'Password Reset ';
-            if (context.parameters.executeStatus === '-1') {
-                subject = subject + 'Attempt Incomplete';
-            }
-            if (context.parameters.executeStatus === '0') {
-                subject = subject + 'Success';
-            }
-            if (context.parameters.executeStatus === '1') {
-                subject = subject + 'Failure';
-            }
-            subject = subject + ' for '+dialogContext.params.customerFirstName+' '+dialogContext.params.customerLastName;
-    
-            let description = dialogContext.params.customerFirstName+' attempted a password reset.';
-            if (context.parameters.passwordLinkSent === '1') {
-                description = description + '  I sent the SMS password reset link.';
-            }
-    
-            if (context.parameters.passwordLinkReceived === '1') {
-                description = description + '  '+dialogContext.params.customerFirstName+' confirmed receiveing the reset link,';
-            }
-    
-            if (context.parameters.passwordLinkNotReceived === '1') {
-                description = description + '  '+dialogContext.params.customerFirstName+' never received the reset link.';
-            }
-    
-            if (context.parameters.confirmedWorking === '1') {
-                description = description + ' and was able to login successfully.';
-            }
-    
-            if (context.parameters.passwordLinkNotReceived === '0' && context.parameters.confirmedNotWorking === '1') {
-                description = description + ' but was unable to login successfully.';
-            }
-    
-            let newCase = {
-                subject: subject,
-                description: description,
-                note: 'Case created.'
-            };
-            return newCase;
-        },
         navigate: (dialogContext) => { // Navigate the sequence forward.
             let context = dialogContext.getOrCreateCtx(SEQ_PWRESET_NAME);
     
@@ -244,6 +201,53 @@ async function injectPasswdResetFailureEvent(dialogContext) {
             return;
         }
     }));
+
+
+
+    // Register a case creation template for the sequence.
+    RedmineConnector.registerCaseTemplate(SEQ_PWRESET_NAME, (dialogContext) => {
+        let context = dialogContext.getOrCreateCtx(SEQ_PWRESET_NAME);
+
+        let subject = 'Password Reset ';
+        if (context.parameters.executeStatus === '-1') {
+            subject = subject + 'Attempt Incomplete';
+        }
+        if (context.parameters.executeStatus === '0') {
+            subject = subject + 'Success';
+        }
+        if (context.parameters.executeStatus === '1') {
+            subject = subject + 'Failure';
+        }
+        subject = subject + ' for '+dialogContext.params.customerFirstName+' '+dialogContext.params.customerLastName;
+
+        let description = dialogContext.params.customerFirstName+' attempted a password reset.';
+        if (context.parameters.passwordLinkSent === '1') {
+            description = description + '  I sent the SMS password reset link.';
+        }
+
+        if (context.parameters.passwordLinkReceived === '1') {
+            description = description + '  '+dialogContext.params.customerFirstName+' confirmed receiveing the reset link,';
+        }
+
+        if (context.parameters.passwordLinkNotReceived === '1') {
+            description = description + '  '+dialogContext.params.customerFirstName+' never received the reset link.';
+        }
+
+        if (context.parameters.confirmedWorking === '1') {
+            description = description + ' and was able to login successfully.';
+        }
+
+        if (context.parameters.passwordLinkNotReceived === '0' && context.parameters.confirmedNotWorking === '1') {
+            description = description + ' but was unable to login successfully.';
+        }
+
+        let newCase = {
+            subject: subject,
+            description: description,
+            note: 'Case created.'
+        };
+        return newCase;
+    });
 
 
 
