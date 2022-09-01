@@ -14,6 +14,7 @@
  */
 
 const { Intent, IntentManager, Sequence, SequenceManager, fmtLog } = require("codingforconvos");
+const { injectJdsEvent,getJdsPerson } = require("../common");
 
 // Define Sequence Name Constants.
 const SEQ_WELCOME_NAME = 'welcome';
@@ -21,6 +22,14 @@ const SEQ_WELCOME_NAME = 'welcome';
 ////////////////////////////////////////////////////
 // Register Welcome Sequence and Intent Handlers. //
 ////////////////////////////////////////////////////
+
+async function injectWelcomeEvent(dialogContext) {
+    let jdsPerson = getJdsPerson(dialogContext);
+
+    injectJdsEvent(dialogContext, jdsPerson.identityAlias, {
+        wxccChannel: dialogContext.params.wxccChannel
+    });
+}
 
 /**
  * Registers the sequences and intents for the welcome module.
@@ -68,6 +77,8 @@ function registerModuleWelcome(sequenceManager,intentManager) {
                     return;
                 }
     
+                injectWelcomeEvent(dialogContext);
+
                 dialogContext.setParam(context, 'saidFirstWelcome', '1');
             }
     
