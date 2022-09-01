@@ -51,14 +51,6 @@ function registerModuleCommon(sequenceManager,intentManager) {
         params: {
             none: '0'
         },
-        createCase: (dialogContext) => { // Create a case.
-            let newCase = {
-                subject: 'Failed to identify navigate conversation.',
-                description: 'Something went wrong.',
-                note: 'Case created.'
-            };
-            return newCase;
-        },
         navigate: (dialogContext) => { // Navigate the sequence forward.
             dialogContext.setFulfillmentText();
             console.log('action: '+dialogContext.currentAction+', lastFulfillmentText: '+dialogContext.params.lastFulfillmentText);
@@ -66,7 +58,7 @@ function registerModuleCommon(sequenceManager,intentManager) {
             return;
         }
     }));
-
+    
 
 
     // Register Intent Handlers.
