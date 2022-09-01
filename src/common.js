@@ -16,7 +16,7 @@
 const { RedmineConnector } = require("./connectors/redmine");
 const { JdsConnector } = require("./connectors/jds");
 
-async function getJdsPerson(dialogContext) {
+function getJdsPerson(dialogContext) {
     let person = {};
 
     person.identityAlias = getIdentityAlias(dialogContext);
@@ -36,42 +36,43 @@ IDENTITY_ALIAS.set('facebookMessenger', getIdentityFbMessengerId);
 IDENTITY_ALIAS.set('whatsApp', getIdentityWhatsAppNumber);
 IDENTITY_ALIAS.set('web', getIdentityEmail);
 
-async function getIdentityAlias(dialogContext) {
+function getIdentityAlias(dialogContext) {
     if (IDENTITY_ALIAS.has(dialogContext.params.wxccChannel)) {
         return IDENTITY_ALIAS.get(dialogContext.params.wxccChannel)(dialogContext);
     }
     return getIdentityPhoneNumber(dialogContext);
 }
 
-async function getIdentityPhoneNumber(dialogContext) {
+function getIdentityPhoneNumber(dialogContext) {
     return dialogContext.params.callingNumber;
 }
 
-async function getIdentitySmsNumber(dialogContext) {
+function getIdentitySmsNumber(dialogContext) {
     return dialogContext.params.smsNumber;
 }
 
-async function getIdentityWhatsAppNumber(dialogContext) {
+function getIdentityWhatsAppNumber(dialogContext) {
     return dialogContext.params.whatsAppNumber;
 }
 
-async function getIdentityFbMessengerId(dialogContext) {
+function getIdentityFbMessengerId(dialogContext) {
     return dialogContext.params.fbMessengerId;
 }
 
-async function getIdentityEmail(dialogContext) {
+function getIdentityEmail(dialogContext) {
     return dialogContext.params.mail;
 }
 
 async function injectJdsEvent(dialogContext, origin, dataParams) {
-    let person = getJdsPerson(dialogContext);
+    let jdsPerson = getJdsPerson(dialogContext);
 
-    console.log(`injectJdsEvent().person: ${JSON.stringify(person)}`);
+    let stringPerson = JSON.stringify(jdsPerson);
+    console.log(`injectJdsEvent().person: ${stringPerson}`);
 
     let channelType = JdsConnector.channelType(dialogContext.params.wxccChannel);
 
     dialogContext.connectorManager.get(JdsConnector.name()).injectJdsEvent(dialogContext.params.uuid, {
-        person: person,
+        person: jdsPerson,
         type: 'bot',
         source: `Virtual Assistant on ${channelType}`,
         origin: origin,
