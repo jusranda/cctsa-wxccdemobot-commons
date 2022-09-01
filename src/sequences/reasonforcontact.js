@@ -32,6 +32,7 @@ const CTX_RFC_NAME = 'reasonforcontact';
     sequenceManager.registerSequence(new Sequence({
         name: CTX_RFC_NAME, // Sequence name, also used for Dialogflow context name.
         activity: 'figuring out how I can help you', // Activity description, used in course correction.
+        identityRequired: false,
         authRequired: false,
         breakIntents: [ // Intents that break from the core flow before attempting sequence navigation.
             { action: 'skill.reasonforcontact', trigger: '1' },

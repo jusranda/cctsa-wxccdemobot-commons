@@ -124,6 +124,7 @@ async function injectPasswdResetFailureEvent(dialogContext) {
     sequenceManager.registerSequence(new Sequence({
         name: SEQ_PWRESET_NAME, // Sequence name, also used for Dialogflow context name.
         activity: 'resetting your password', // Activity description, used in course correction.
+        identityRequired: false,
         authRequired: true,
         breakIntents: [ // Intents that break from the core flow before attempting sequence navigation.
             { action: 'skill.resetpassword.sms', trigger: '1' },

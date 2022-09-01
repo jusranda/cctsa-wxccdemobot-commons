@@ -30,6 +30,7 @@ const SEQ_COVIDSCREEN_NAME = 'covidscreen';
     sequenceManager.registerSequence(new Sequence({
         name: SEQ_COVIDSCREEN_NAME, // Sequence name, also used for Dialogflow context name.
         activity: 'completing your Covid-19 in-person admittance questionnaire', // Activity description, used in course correction.
+        identityRequired: false,
         authRequired: false,
         breakIntents: [ // Intents that break from the core flow before attempting sequence navigation.
             { action: 'skill.covidscreen.required', trigger: '1' },

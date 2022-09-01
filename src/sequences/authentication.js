@@ -73,6 +73,7 @@ function registerModuleAuthentication(sequenceManager,intentManager) {
     sequenceManager.registerSequence(new Sequence({
         name: SEQ_AUTH_NAME, // Sequence name, also used for Dialogflow context name.
         activity: 'verifying your identity', // Activity description, used in course correction.
+        identityRequired: false,
         authRequired: false,
         breakIntents: [ // Intents that break from the core flow before attempting sequence navigation.
             { action: 'auth.sendotp', trigger: '1' },

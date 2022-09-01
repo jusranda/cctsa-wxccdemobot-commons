@@ -43,6 +43,7 @@ function registerModuleWelcome(sequenceManager,intentManager) {
     sequenceManager.registerSequence(new Sequence({
         name: SEQ_WELCOME_NAME, // Sequence name, also used for Dialogflow context name.
         activity: 'greeting each other', // Activity description, used in course correction.
+        identityRequired: false,
         authRequired: false,
         breakIntents: [ // Intents that break from the core flow before attempting sequence navigation.
             { action: 'welcome.ask.wellbeing', trigger: '1' }
