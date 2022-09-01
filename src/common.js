@@ -81,9 +81,12 @@ async function injectJdsEvent(dialogContext, origin, dataParams) {
     });
 }
 
-async function createRedmineIssue (dialogContext) {
+async function createRedmineIssue (dialogContext, caseTemplateName='|') {
     const redmineApi = dialogContext.connectorManager.get(RedmineConnector.name());
-    let newCase = dialogContext.currentSequence.createCase(dialogContext);
+
+    const templateName = (caseTemplateName !== '|') ? caseTemplateName : dialogContext.params.sequenceCurrent;
+
+    let newCase = RedmineConnector.caseTemplate(templateName)(dialogContext);
             
     const redmineNewIssue = await redmineApi.createRedmineIssue(newCase, dialogContext);
     console.log('redmineNewIssue.id: '+redmineNewIssue.id);
