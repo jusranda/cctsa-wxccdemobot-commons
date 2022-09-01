@@ -29,6 +29,17 @@ const REDMINE_SOURCES = {
     'web': 'Web'
 };
 
+const CASE_TEMPLATES = new Map();
+
+function DEFAULT_CREATE_CASE () {
+    let newCase = {
+        subject: 'A new case has been created.',
+        description: 'I need to create a case, but I don\'t know what type of case to create.',
+        note: 'Initial case creation.'
+    };
+    return newCase;
+}
+
 /**
  * A Connector for the Redmine REST API.
  */
@@ -76,6 +87,30 @@ class RedmineConnector extends Connector {
      */
     static redmineSource(wxccChannel) {
         return REDMINE_SOURCES[wxccChannel];
+    }
+    
+    /**
+     * Get the Redmine case creation factory template method.
+     * 
+     * @param {string} templateName     The case creation template name.
+     * @returns the Redmine case creation factory template method.
+     */
+    static caseTemplate(templateName) {
+        if (!CASE_TEMPLATES.has(templateName)) {
+            return DEFAULT_CREATE_CASE;
+        }
+        return CASE_TEMPLATES.get(templateName);
+    }
+    
+    /**
+     * Register a Redmine case creation factory template method.
+     * 
+     * @param {string} templateName     The template name.
+     * @param {Function} templateFunc   The case creation factory template method.
+     * @returns 
+     */
+    static registerCaseTemplate(templateName, templateFunc) {
+        return CASE_TEMPLATES.set(templateName,templateFunc);
     }
     
     /**
