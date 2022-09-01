@@ -73,12 +73,12 @@ function registerModuleWelcome(sequenceManager,intentManager) {
                 }
     
                 if (context.parameters.askedWellbeing === '0') {
+                    injectWelcomeEvent(dialogContext);
+
                     let askWellbeingEvent = dialogContext.respondWithEvent('AskWellbeing', dialogContext.params.lastFulfillmentText);
                     return;
                 }
     
-                injectWelcomeEvent(dialogContext);
-
                 dialogContext.setParam(context, 'saidFirstWelcome', '1');
             }
     
