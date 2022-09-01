@@ -25,7 +25,7 @@ const REDMINE_SOURCES = {
     'chat': 'Chat',
     'sms': 'SMS',
     'facebookMessenger': 'Facebook Messenger',
-    'whatsApp': 'WhatsApp',
+    'whatsapp': 'WhatsApp',
     'web': 'Web'
 };
 
