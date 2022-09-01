@@ -127,8 +127,13 @@ const JDS_CHANNEL_TYPES = {
             "dataContentType": "application/json",
             "data": eventParams
         };
+
+        let dataString = JSON.stringify(data);
+        let eventParamsString = JSON.stringify(eventParams);
         
-        console.log(JSON.stringify(data));
+        console.log(`data: ${dataString}`);
+        console.log(`eventParams: ${eventParamsString}`);
+
         axios.post(url, data, {
             headers:{
                 'Content-Type': 'application/json',
