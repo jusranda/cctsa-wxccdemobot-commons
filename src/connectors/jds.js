@@ -96,7 +96,9 @@ const JDS_CHANNEL_TYPES = {
         if (params.origin == undefined) { throw new Error('origin is a required parameter for creating JDS event objects.'); }
         if (params.channelType == undefined) { throw new Error('channelType is a required parameter for creating JDS event objects.'); }
 
-        let type = (params.type != undefined) ? params.type : 'manual';
+        console.log(`JdsConnector.injectJdsEvent().params.person: ${JSON.stringify(params.person)}`);
+
+    let type = (params.type != undefined) ? params.type : 'manual';
         let source = (params.source != undefined) ? params.source : 'web';
         let previously = (params.previously != undefined) ? params.previously : '12345';
 

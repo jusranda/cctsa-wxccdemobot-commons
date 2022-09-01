@@ -65,6 +65,9 @@ async function getIdentityEmail(dialogContext) {
 
 async function injectJdsEvent(dialogContext, origin, dataParams) {
     let person = getJdsPerson(dialogContext);
+
+    console.log(`injectJdsEvent().person: ${JSON.stringify(person)}`);
+
     let channelType = JdsConnector.channelType(dialogContext.params.wxccChannel);
 
     dialogContext.connectorManager.get(JdsConnector.name()).injectJdsEvent(dialogContext.params.uuid, {
