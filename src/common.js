@@ -44,15 +44,15 @@ function getIdentityAlias(dialogContext) {
 }
 
 function getIdentityPhoneNumber(dialogContext) {
-    return dialogContext.params.callingNumber;
+    return '+1'+dialogContext.params.callingNumber;
 }
 
 function getIdentitySmsNumber(dialogContext) {
-    return dialogContext.params.smsNumber;
+    return '+1'+dialogContext.params.smsNumber;
 }
 
 function getIdentityWhatsAppNumber(dialogContext) {
-    return dialogContext.params.whatsAppNumber;
+    return '+1'+dialogContext.params.whatsAppNumber;
 }
 
 function getIdentityFbMessengerId(dialogContext) {
