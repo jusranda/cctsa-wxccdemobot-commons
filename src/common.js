@@ -87,7 +87,6 @@ async function createRedmineIssue (dialogContext) {
     dialogContext.connectorManager.get(RedmineConnector.name()).updateRedmineIssueNotes(redmineNewIssue.id, newCase.note);
 
     dialogContext.setSessionParams({
-        'offeredAgent': '1', // remove me.
         'ticketNumber': redmineNewIssue.id.toString(),
         'redmineOpenCaseId': redmineNewIssue.id.toString()
     });
