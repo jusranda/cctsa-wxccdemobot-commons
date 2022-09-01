@@ -55,14 +55,6 @@ function registerModuleWelcome(sequenceManager,intentManager) {
             confirmedWellbeingPositive: '0',
             confirmedWellbeingNegative: '0'
         },
-        createCase: (dialogContext) => { // Create a case.
-            let newCase = {
-                subject: 'Failed to identify navigate conversation.',
-                description: 'Something went wrong.',
-                note: 'Case created.'
-            };
-            return newCase;
-        },
         navigate: (dialogContext) => { // Navigate the sequence forward.
             let context = dialogContext.getOrCreateCtx(SEQ_WELCOME_NAME);
     

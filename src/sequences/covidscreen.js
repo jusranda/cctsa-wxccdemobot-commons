@@ -87,14 +87,6 @@ const SEQ_COVIDSCREEN_NAME = 'covidscreen';
             rebookAccepted: '0',
             rebookDeclined: '0'
         },
-        createCase: (dialogContext) => { // Create a case.
-            let newCase = {
-                subject: 'Failed to identify navigate conversation.',
-                description: 'Something went wrong.',
-                note: 'Case created.'
-            };
-            return newCase;
-        },
         navigate: (dialogContext) => { // Navigate the sequence forward.
             let context = dialogContext.getOrCreateCtx(SEQ_COVIDSCREEN_NAME);
 

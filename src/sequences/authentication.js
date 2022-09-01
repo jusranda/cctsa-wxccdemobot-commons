@@ -98,14 +98,6 @@ function registerModuleAuthentication(sequenceManager,intentManager) {
             usernameNotFound: '',
             receivedOtp: ''
         },
-        createCase: (dialogContext) => { // Create a case.
-            let newCase = {
-                subject: 'Failed to identify navigate conversation.',
-                description: 'Something went wrong.',
-                note: 'Case created.'
-            };
-            return newCase;
-        },
         navigate: (dialogContext) => { // Navigate the sequence forward.
             let context = dialogContext.getOrCreateCtx(SEQ_AUTH_NAME);
     

@@ -40,14 +40,6 @@ const CTX_RFC_NAME = 'reasonforcontact';
         params: {
             askedReasonForCalling: '0'
         },
-        createCase: (dialogContext) => { // Create a case.
-            let newCase = {
-                subject: 'Failed to identify navigate conversation.',
-                description: 'Something went wrong.',
-                note: 'Case created.'
-            };
-            return newCase;
-        },
         navigate: (dialogContext) => { // Navigate the sequence forward.
             //let context = dialogContext.getOrCreateCtx(CTX_RFC_NAME);
     
