@@ -98,4 +98,4 @@ async function createRedmineIssue (dialogContext) {
     return redmineNewIssue;
 }
 
-module.exports = {injectJdsEvent,createRedmineIssue};
+module.exports = {injectJdsEvent,createRedmineIssue,getJdsPerson};
