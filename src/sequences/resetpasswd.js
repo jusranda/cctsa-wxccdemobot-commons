@@ -16,7 +16,7 @@
 const { Intent, IntentManager, Sequence, SequenceManager, fmtLog } = require("codingforconvos");
 const { RedmineConnector } = require("../connectors/redmine");
 const { WebexConnectConnector } = require("../connectors/webexconnect");
-const { JdsConnector } = require("../connectors/jds");
+const { injectJdsEvent,createRedmineIssue } = require("../common");
 
 // Define Sequence Name Constants.
 const SEQ_PWRESET_NAME = 'passwordreset';
@@ -95,24 +95,21 @@ async function resetAndSendPasswordByEmail(dialogContext) {
     );
 }
 
-async function injectPasswdResetEvent(dialogContext) {
-    let uuid = JdsConnector.createUuid();
-    dialogContext.connectorManager.get(JdsConnector.name()).injectJdsEvent(uuid, {
-        person: {
-            identityAlias: '+16479875878',
-            firstName: 'Johnny',
-            lastName: 'Forgetful',
-            phone: '+16479875878',
-            email: 'justin@outofservice.org'
-        },
-        type: 'bot-event',
-        source: 'Virtual Assistant WhatsApp',
-        origin: 'Password Change Success',
-        channelType: 'SMS',
-        dataParams: {
-            caseUrl: 'http://cctsa-redmine.outofservice.org/issues/57',
-            caseReason: 'Record of success'
-        }
+async function injectPasswdResetSuccessEvent(dialogContext) {
+    const redmineNewIssue = await createRedmineIssue(dialogContext);
+    
+    injectJdsEvent(dialogContext, 'Password Change Success', {
+        caseUrl: 'http://cctsa-redmine.outofservice.org/issues/'+redmineNewIssue.id,
+        caseReason: 'Record of success'
+    });
+}
+
+async function injectPasswdResetFailureEvent(dialogContext) {
+    const redmineNewIssue = await createRedmineIssue(dialogContext);
+    
+    injectJdsEvent(dialogContext, 'Password Change Failure', {
+        caseUrl: 'http://cctsa-redmine.outofservice.org/issues/'+redmineNewIssue.id,
+        caseReason: 'Escalate failed password change'
     });
 }
 
@@ -131,9 +128,7 @@ async function injectPasswdResetEvent(dialogContext) {
         breakIntents: [ // Intents that break from the core flow before attempting sequence navigation.
             { action: 'skill.resetpassword.sms', trigger: '1' },
             { action: 'skill.resetpassword.email', trigger: '1' },
-            //{ action: 'skill.resetpassword.sms.fallback', trigger: '1' },
             { action: 'skill.resetpassword.loginsuccess', trigger: '1' },
-            //{ action: 'skill.resetpassword.loginsuccess.fallback', trigger: '1' }
         ],
         params: {
             executeStatus: '-1',
@@ -177,7 +172,7 @@ async function injectPasswdResetEvent(dialogContext) {
                 description = description + ' and was able to login successfully.';
             }
     
-            if (context.parameters.confirmedNotWorking === '1') {
+            if (context.parameters.passwordLinkNotReceived === '0' && context.parameters.confirmedNotWorking === '1') {
                 description = description + ' but was unable to login successfully.';
             }
     
@@ -452,7 +447,9 @@ async function injectPasswdResetEvent(dialogContext) {
     intentManager.registerIntent(new Intent({
         action: 'skill.resetpassword.success',
         sequenceName: SEQ_PWRESET_NAME,
-        handler: (dialogContext) => {
+        handler: async (dialogContext) => {
+            await injectPasswdResetSuccessEvent(dialogContext);
+
             dialogContext.appendFulfillmentText();
     
             let helpCounter = parseInt(dialogContext.params.helpCounter) + 1;
@@ -465,9 +462,12 @@ async function injectPasswdResetEvent(dialogContext) {
     intentManager.registerIntent(new Intent({
         action: 'skill.resetpassword.failure',
         sequenceName: SEQ_PWRESET_NAME,
-        handler: (dialogContext) => {
+        handler: async (dialogContext) => {
+            await injectPasswdResetFailureEvent(dialogContext);
+
             dialogContext.appendFulfillmentText();
             dialogContext.setCurrentParam('notifiedFailure', '1');
+
             return;
         }
     }));
