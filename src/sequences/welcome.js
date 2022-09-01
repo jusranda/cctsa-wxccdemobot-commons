@@ -55,7 +55,7 @@ function registerModuleWelcome(sequenceManager,intentManager) {
             confirmedWellbeingPositive: '0',
             confirmedWellbeingNegative: '0'
         },
-        createCase: (contextManager, agent, ctxSessionProps) => { // Create a case.
+        createCase: (dialogContext) => { // Create a case.
             let newCase = {
                 subject: 'Failed to identify navigate conversation.',
                 description: 'Something went wrong.',

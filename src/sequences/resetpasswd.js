@@ -140,8 +140,8 @@ async function injectPasswdResetFailureEvent(dialogContext) {
             notifiedSuccess: '0',
             notifiedFailure: '0'
         },
-        createCase: (contextManager, agent, ctxSessionProps) => { // Create a case.
-            let context = contextManager.getOrCreateCtx(agent, SEQ_PWRESET_NAME);
+        createCase: (dialogContext) => { // Create a case.
+            let context = dialogContext.getOrCreateCtx(SEQ_PWRESET_NAME);
     
             let subject = 'Password Reset ';
             if (context.parameters.executeStatus === '-1') {
@@ -153,19 +153,19 @@ async function injectPasswdResetFailureEvent(dialogContext) {
             if (context.parameters.executeStatus === '1') {
                 subject = subject + 'Failure';
             }
-            subject = subject + ' for '+ctxSessionProps.parameters.customerFirstName+' '+ctxSessionProps.parameters.customerLastName;
+            subject = subject + ' for '+dialogContext.params.customerFirstName+' '+dialogContext.params.customerLastName;
     
-            let description = ctxSessionProps.parameters.customerFirstName+' attempted a password reset.';
+            let description = dialogContext.params.customerFirstName+' attempted a password reset.';
             if (context.parameters.passwordLinkSent === '1') {
                 description = description + '  I sent the SMS password reset link.';
             }
     
             if (context.parameters.passwordLinkReceived === '1') {
-                description = description + '  '+ctxSessionProps.parameters.customerFirstName+' confirmed receiveing the reset link,';
+                description = description + '  '+dialogContext.params.customerFirstName+' confirmed receiveing the reset link,';
             }
     
             if (context.parameters.passwordLinkNotReceived === '1') {
-                description = description + '  '+ctxSessionProps.parameters.customerFirstName+' never received the reset link.';
+                description = description + '  '+dialogContext.params.customerFirstName+' never received the reset link.';
             }
     
             if (context.parameters.confirmedWorking === '1') {

@@ -98,7 +98,7 @@ function registerModuleAuthentication(sequenceManager,intentManager) {
             usernameNotFound: '',
             receivedOtp: ''
         },
-        createCase: (contextManager, agent, ctxSessionProps) => { // Create a case.
+        createCase: (dialogContext) => { // Create a case.
             let newCase = {
                 subject: 'Failed to identify navigate conversation.',
                 description: 'Something went wrong.',
