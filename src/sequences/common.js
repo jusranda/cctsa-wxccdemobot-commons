@@ -188,6 +188,7 @@ function registerModuleCommon(sequenceManager,intentManager) {
     sequenceManager.registerSequence(new Sequence({
         name: SEQ_ANYTHINGELSE_NAME, // Sequence name, also used for Dialogflow context name.
         activity: 'checking if there\'s anything else I can do to help', // Activity description, used in course correction.
+        identityRequired: false,
         authRequired: false,
         breakIntents: [ // Intents that break from the core flow before attempting sequence navigation.
             { action: 'common.offer.anythingelse', trigger: '1' },
