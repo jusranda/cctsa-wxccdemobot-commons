@@ -191,6 +191,7 @@ function registerModuleAuthentication(sequenceManager,intentManager) {
         }
     }));
 
+    // FIXME: Most of this operation should be moved into the RedmineConnector, similar to phone and email account lookups.
     intentManager.registerIntent(new Intent({
         action: 'auth.getaccount.value',
         sequenceName: SEQ_AUTH_NAME,
@@ -225,6 +226,8 @@ function registerModuleAuthentication(sequenceManager,intentManager) {
                 'smsNumber': resultUser.mobileNumber,
                 'redmineUserId': Math.floor(resultUser.id).toString(), // Convert from float->int->string
                 'mail': resultUser.mail,
+                'identityPhoneNumber': resultUser.mobileNumber,
+                'identityEmail': resultUser.mail,
                 'customerFirstName': resultUser.firstName,
                 'customerLastName': resultUser.lastName,
                 'redmineOpenCaseId': resultUser.openCaseId,
