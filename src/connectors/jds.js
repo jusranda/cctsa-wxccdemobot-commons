@@ -23,7 +23,7 @@ const JDS_CHANNEL_TYPES = {
     'chat': 'Chat',
     'sms': 'SMS',
     'facebookMessenger': 'Messenger',
-    'whatsApp': 'WhatsApp',
+    'whatsapp': 'WhatsApp',
     'web': 'Web'
 };
 
@@ -96,11 +96,11 @@ const JDS_CHANNEL_TYPES = {
         if (params.origin == undefined) { throw new Error('origin is a required parameter for creating JDS event objects.'); }
         if (params.channelType == undefined) { throw new Error('channelType is a required parameter for creating JDS event objects.'); }
 
-        //let stringParams = JSON.stringify(params);
-        //console.log(`JdsConnector.injectJdsEvent().params: ${stringParams}`);
+        let stringParams = JSON.stringify(params);
+        console.log(`JdsConnector.injectJdsEvent().params: ${stringParams}`);
 
-        //let stringPerson = JSON.stringify(params.person);
-        //console.log(`JdsConnector.injectJdsEvent().params.person: ${stringPerson}`);
+        let stringPerson = JSON.stringify(params.person);
+        console.log(`JdsConnector.injectJdsEvent().params.person: ${stringPerson}`);
 
         let type = (params.type != undefined) ? params.type : 'manual';
         let source = (params.source != undefined) ? params.source : 'web';
@@ -109,7 +109,7 @@ const JDS_CHANNEL_TYPES = {
         let eventParams = {
             "taskId": uuid,
             //"origin": params.origin,
-            "origin": params.person.identityAlias,
+            "origin": params.origin,
             "createdTime": Date.now(),
             "channelType": params.channelType,
             "firstName": params.person.firstName,
