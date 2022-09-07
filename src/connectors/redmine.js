@@ -445,13 +445,12 @@ class RedmineConnector extends Connector {
             return ctxSessionProps;
         }
     
-        context.parameters.identityPhoneNumber = resultUser.mobileNumber;
-        context.parameters.identityEmail = resultUser.mail;
-        
         context.parameters.phoneNumberFound = '1';
         context.parameters.validatedBy = 'Calling Number';
         dialogContext.dialogflowAgent.context.set(context);
     
+        ctxSessionProps.parameters.identityPhoneNumber = resultUser.mobileNumber;
+        ctxSessionProps.parameters.identityEmail = resultUser.mail;
         ctxSessionProps.parameters.customerIdentified = '1';
         ctxSessionProps.parameters.customerIdentifiedBy = 'Calling Number';
         dialogContext.dialogflowAgent.context.set(ctxSessionProps);
@@ -485,13 +484,12 @@ class RedmineConnector extends Connector {
             return ctxSessionProps;
         }
     
-        context.parameters.identityPhoneNumber = resultUser.mobileNumber;
-        context.parameters.identityEmail = resultUser.mail;
-        
         context.parameters.emailFound = '1';
         context.parameters.validatedBy = 'Email';
         dialogContext.dialogflowAgent.context.set(context);
     
+        ctxSessionProps.parameters.identityPhoneNumber = resultUser.mobileNumber;
+        ctxSessionProps.parameters.identityEmail = resultUser.mail;
         ctxSessionProps.parameters.customerIdentified = '1';
         ctxSessionProps.parameters.customerIdentifiedBy = 'Email';
         dialogContext.dialogflowAgent.context.set(ctxSessionProps);
