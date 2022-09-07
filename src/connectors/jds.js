@@ -110,7 +110,7 @@ const JDS_CHANNEL_TYPES = {
             "taskId": uuid,
             //"origin": params.origin,
             "origin": params.origin,
-            "createdTime": Date.now(),
+            "createdTime": Date.now().toString(),
             "channelType": params.channelType,
             "firstName": params.person.firstName,
             "lastName": params.person.lastName,
