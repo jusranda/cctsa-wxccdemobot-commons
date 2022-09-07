@@ -19,7 +19,9 @@ const axios = require('axios');
 const CXTR_JDS_NAME = 'jds';
 
 const JDS_CHANNEL_TYPES = {
-    'phone': 'telephony',
+    // FIXME: Work with BU on NOT_A_NUMBER on issue.
+    //'phone': 'telephony',
+    'phone': 'IVR',
     'chat': 'Chat',
     'sms': 'SMS',
     'facebookMessenger': 'Messenger',
@@ -109,7 +111,8 @@ const JDS_CHANNEL_TYPES = {
         let eventParams = {
             "taskId": uuid,
             // FIXME: Work with BU on NOT_A_NUMBER on issue.
-            "origin": (dialogContext.params.wxccChannel !== 'phone') ? params.origin : params.person.identityAlias, 
+            //"origin": (dialogContext.params.wxccChannel !== 'phone') ? params.origin : params.person.identityAlias, 
+            "origin": params.origin, 
             "createdTime": Date.now().toString(),
             "channelType": params.channelType,
             "firstName": params.person.firstName,
