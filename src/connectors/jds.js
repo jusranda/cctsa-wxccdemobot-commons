@@ -108,8 +108,8 @@ const JDS_CHANNEL_TYPES = {
 
         let eventParams = {
             "taskId": uuid,
-            //"origin": params.origin,
-            "origin": params.origin,
+            // FIXME: Work with BU on NOT_A_NUMBER on issue.
+            "origin": (dialogContext.params.wxccChannel === 'phone') ? params.origin : params.person.identityAlias, 
             "createdTime": Date.now().toString(),
             "channelType": params.channelType,
             "firstName": params.person.firstName,
