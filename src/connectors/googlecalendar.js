@@ -97,10 +97,43 @@ const CXTR_GOOGLECAL_NAME = 'googlecalendar';
     }
 
     /**
+     * Checks if the chosen calendar window is available.
+     * 
+     * @param {Date} dateTimeStart  The appointment start time.
+     * @param {Date} dateTimeEnd    The appointment end time.
+     * @returns true if the timeslot is available, otherwise, false;
+     */
+    async isAvailable(dateTimeStart, dateTimeEnd) {
+        let result = true;
+        return new Promise((resolve, reject) => {
+            super.endpoint.events.list({ // List events for time period
+                auth: this._serviceAccountAuth,
+                calendarId: this._calendarId,
+                timeMin: dateTimeStart.toISOString(),
+                timeMax: dateTimeEnd.toISOString()
+            }, (err, calendarResponse) => {
+                if (err) {
+                    console.error('err: '+err.stack);
+                    reject(err || new Error('An error occured when booking the appointment'));
+                } else {
+                    console.log('calendarResponse: '+calendarResponse);
+                    console.log('calendarResponse.stringify: '+JSON.stringify(calendarResponse));
+
+                    if (calendarResponse.data.items.length > 0) {
+                        result = false;
+                    }
+
+                    resolve(result);
+                }
+            });
+        });
+    }
+
+    /**
      * Create a new Google Calendar event.
      * 
-     * @param {string} dateTimeStart        The start date/time of the event.
-     * @param {string} dateTimeEnd          The end date/time of the event.
+     * @param {Date} dateTimeStart        The start date/time of the event.
+     * @param {Date} dateTimeEnd          The end date/time of the event.
      * @param {string} appointment_type     The appointment type.
      * @returns 
      */
@@ -112,11 +145,27 @@ const CXTR_GOOGLECAL_NAME = 'googlecalendar';
                 timeMin: dateTimeStart.toISOString(),
                 timeMax: dateTimeEnd.toISOString()
             }, (err, calendarResponse) => {
-                if (err || calendarResponse.data.items.length > 0) {
+                if (err) {
+                    // Create event for the requested time period
+                    
+                    console.log('err: '+err);
+                    console.log('calendarResponse: '+calendarResponse);
+                    console.log('calendarResponse.stringify: '+JSON.stringify(calendarResponse));
+
+                    // Check if there is a event already on the Calendar
+                    reject(err || new Error('An error occured when booking the appointment'));
+                } else if (calendarResponse.data.items.length > 0) {
+                    // Create event for the requested time period
+                    console.log('calendarResponse: '+calendarResponse);
+                    console.log('calendarResponse.stringify: '+JSON.stringify(calendarResponse));
+
                     // Check if there is a event already on the Calendar
                     reject(err || new Error('Requested time conflicts with another appointment'));
                 } else {
                     // Create event for the requested time period
+                    console.log('calendarResponse: '+calendarResponse);
+                    console.log('calendarResponse.stringify: '+JSON.stringify(calendarResponse));
+
                     super.endpoint.events.insert({
                         auth: this._serviceAccountAuth,
                         calendarId: this._calendarId,
