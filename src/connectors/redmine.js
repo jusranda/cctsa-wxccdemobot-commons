@@ -417,6 +417,9 @@ class RedmineConnector extends Connector {
         } else if (ctxSessionProps.parameters.smsNumber !== '') {
             console.log(fmtLog('populateFromRedmineLookup', 'Lookup Redmine User by SMS Number '+ctxSessionProps.parameters.smsNumber, dialogContext));
             return await RedmineConnector.populateFromRedmineMobileNumber(ctxSessionProps, ctxSessionProps.parameters.smsNumber, dialogContext);
+        } else if (ctxSessionProps.parameters.whatsAppNumber !== '') {
+            console.log(fmtLog('populateFromRedmineLookup', 'Lookup Redmine User by SMS Number '+ctxSessionProps.parameters.smsNumber, dialogContext));
+            return await RedmineConnector.populateFromRedmineMobileNumber(ctxSessionProps, ctxSessionProps.parameters.smsNumber, dialogContext);
         } else if (ctxSessionProps.parameters.mail !== '') {
             console.log(fmtLog('populateFromRedmineLookup', 'Lookup Redmine User by Email '+ctxSessionProps.parameters.mail, dialogContext));
             return await RedmineConnector.populateFromRedmineEmail(ctxSessionProps, ctxSessionProps.parameters.mail, dialogContext);
