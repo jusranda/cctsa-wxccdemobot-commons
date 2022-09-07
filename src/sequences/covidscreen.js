@@ -19,6 +19,20 @@ const { RedmineConnector } = require("../connectors/redmine");
 // Define Sequence Name Constants.
 const SEQ_COVIDSCREEN_NAME = 'covidscreen';
 
+async function injectCovidScreenSuccessEvent(dialogContext) {
+    injectJdsEvent(dialogContext, 'Covid Screen Accepted', {
+        caseUrl: 'http://cctsa-redmine.outofservice.org/issues/'+dialogContext.params.triageNumber,
+        caseReason: 'Record of accepted screening results'
+    });
+}
+
+async function injectCovidScreenFailureEvent(dialogContext) {
+    injectJdsEvent(dialogContext, 'Covid Screen Rejected', {
+        caseUrl: 'http://cctsa-redmine.outofservice.org/issues/'+dialogContext.params.triageNumber,
+        caseReason: 'Record of rejected screening results'
+    });
+}
+
 /**
  * Registers the sequences and intents for the authentication module.
  * 
@@ -626,6 +640,12 @@ const SEQ_COVIDSCREEN_NAME = 'covidscreen';
 
             dialogContext.setSessionParam('redmineOpenCaseId', redmineNewTriage.id);
             dialogContext.setCurrentParam('triageNumber', redmineNewTriage.id);
+
+            if (triage.passOrFail === 'pass') {
+                injectCovidScreenSuccessEvent(dialogContext);
+            } else {
+                injectCovidScreenFailureEvent(dialogContext);
+            }
 
             //console.log('Calling popSequenceAndNavigate '+SEQ_COVIDSCREEN_NAME);
             //dialogContext.popSequenceAndNavigate(SEQ_COVIDSCREEN_NAME);
