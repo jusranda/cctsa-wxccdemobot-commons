@@ -15,6 +15,7 @@
 
 const { Intent, IntentManager, Sequence, SequenceManager, fmtLog } = require("codingforconvos");
 const { RedmineConnector } = require("../connectors/redmine");
+const { injectJdsEvent } = require("../common");
 
 // Define Sequence Name Constants.
 const SEQ_COVIDSCREEN_NAME = 'covidscreen';
