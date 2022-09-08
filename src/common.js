@@ -74,7 +74,7 @@ async function injectJdsEvent(dialogContext, origin, dataParams) {
     dialogContext.connectorManager.get(JdsConnector.name()).injectJdsEvent(dialogContext.params.uuid, {
         person: jdsPerson,
         type: 'bot',
-        source: `Virtual Assistant on ${channelType}`,
+        source: `${channelType} Virtual Assistant`,
         origin: origin,
         channelType: channelType,
         dataParams: dataParams
