@@ -22,14 +22,14 @@ const SEQ_COVIDSCREEN_NAME = 'covidscreen';
 
 async function injectCovidScreenSuccessEvent(dialogContext) {
     injectJdsEvent(dialogContext, 'Covid Screen Accepted', {
-        caseUrl: 'http://cctsa-redmine.outofservice.org/issues/'+dialogContext.params.triageNumber,
+        caseUrl: 'http://cctsa-redmine.outofservice.org/issues/'+dialogContext.ctxparams.triageNumber,
         caseReason: 'Record of accepted screening results'
     });
 }
 
 async function injectCovidScreenFailureEvent(dialogContext) {
     injectJdsEvent(dialogContext, 'Covid Screen Rejected', {
-        caseUrl: 'http://cctsa-redmine.outofservice.org/issues/'+dialogContext.params.triageNumber,
+        caseUrl: 'http://cctsa-redmine.outofservice.org/issues/'+dialogContext.ctxparams.triageNumber,
         caseReason: 'Record of rejected screening results'
     });
 }
