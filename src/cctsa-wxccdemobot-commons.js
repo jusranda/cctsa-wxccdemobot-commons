@@ -14,11 +14,12 @@
  */
 const { IntentManager, SequenceManager } = require("codingforconvos");
 
+const { populateWxccChannelFieldsFromEsPayload,populateRedmineFieldsFromEsPayload,format10dPhoneNumber } = require("./common");
 const { registerModuleWelcome } = require("./sequences/welcome");
 const { registerModuleAuthentication } = require("./sequences/authentication");
 const { registerModuleReasonForContact } = require("./sequences/reasonforcontact");
 const { registerModuleResetPassword } = require("./sequences/resetpasswd");
-const { registerModuleCommon,populateWxccChannelFieldsFromEsPayload,populateRedmineFieldsFromEsPayload } = require("./sequences/common");
+const { registerModuleCommon } = require("./sequences/common");
 const { registerModuleCovidScreen } = require("./sequences/covidscreen");
 const { WebexCcConnector } = require("./connectors/wxcc");
 const { RedmineConnector } = require("./connectors/redmine");
@@ -40,4 +41,4 @@ function registerCommonModules(sequenceManager, intentManager) {
     registerModuleCommon(sequenceManager, intentManager);
 }
 
-module.exports = {registerCommonModules,registerModuleCovidScreen,WebexCcConnector,RedmineConnector,WebexConnectConnector,GoogleCalendarConnector,JdsConnector,populateWxccChannelFieldsFromEsPayload,populateRedmineFieldsFromEsPayload};
+module.exports = {registerCommonModules,registerModuleCovidScreen,WebexCcConnector,RedmineConnector,WebexConnectConnector,GoogleCalendarConnector,JdsConnector,populateWxccChannelFieldsFromEsPayload,populateRedmineFieldsFromEsPayload,format10dPhoneNumber};
