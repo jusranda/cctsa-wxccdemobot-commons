@@ -69,6 +69,17 @@ class RedmineConnector extends Connector {
 
         params.name = CXTR_REDMINE_NAME;
         params.params = params;
+        params.sessionParams = {
+            redmineUserId: '',
+            customerFirstName: '',
+            customerLastName: '',
+            accountNumber: '',
+            accountTier: '',
+            accountStatus: '',
+            preferredLanguage: '',
+            redmineOpenCaseId: '',
+            advisoryNotice: ''
+        };
 
         super(params);
 

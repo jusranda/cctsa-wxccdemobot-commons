@@ -269,24 +269,6 @@ function createWxccChannelFieldsParams(context) {
 
     return context;
 }
-/**
- * Create the Redmine base detault parameters and values in the session context.
- * @param {Object} context              The session props context.
- * @returns the session props context, populated with Redmine fields and default values.
- */
-function createRedmineFieldsParams(context) {
-    context.redmineUserId = '';
-    context.customerFirstName = '';
-    context.customerLastName = '';
-    context.accountNumber = '';
-    context.accountTier = ''; 
-    context.accountStatus = '';
-    context.preferredLanguage = '';
-    context.redmineOpenCaseId = '';
-    context.advisoryNotice = '';
-    
-    return context;
-}
 
 /**
  * Normalize a phone number into 10D format.
@@ -303,4 +285,4 @@ function format10dPhoneNumber(phoneNumber) {
     return phoneNumber;
 }
 
-module.exports = {injectJdsEvent,createRedmineIssue,getJdsPerson,populateWxccChannelFieldsFromEsPayload,populateRedmineFieldsFromEsPayload,createWxccChannelFieldsParams,createRedmineFieldsParams,format10dPhoneNumber};
+module.exports = {injectJdsEvent,createRedmineIssue,getJdsPerson,populateWxccChannelFieldsFromEsPayload,populateRedmineFieldsFromEsPayload,createWxccChannelFieldsParams,format10dPhoneNumber};
