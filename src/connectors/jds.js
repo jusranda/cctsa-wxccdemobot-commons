@@ -52,6 +52,9 @@ const JDS_CHANNEL_TYPES = {
         params.endpoint = axios;
         params.name = CXTR_JDS_NAME;
         params.params = params;
+        params.sessionParams = {
+            uuid: JdsConnector.createUuid()
+        };
 
         super(params);
 

@@ -229,7 +229,6 @@ function createWxccChannelFieldsParams(context) {
     context.interactionId = '';
     context.wxccChannel = '';
     context.interactionSource = '';
-    context.uuid = JdsConnector.createUuid();
         
     context.origCallingNumber = '';
     context.callingNumber = '';
