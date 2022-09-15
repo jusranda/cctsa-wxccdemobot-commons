@@ -164,7 +164,7 @@ async function createRedmineIssue (dialogContext, caseTemplateName='|') {
  * @param {DialogContext} dialogContext The dialog context.
  * @returns the session props context.
  */
-function populateChannelFieldsFromEsPayload(context,dialogContext) {
+function populateWxccChannelFieldsFromEsPayload(context,dialogContext) {
     let request = dialogContext.dialogflowAgent.request_.body.originalDetectIntentRequest;
 
     let wxccChannel = (request.payload.wxccChannel) ? request.payload.wxccChannel : '';
@@ -200,11 +200,29 @@ function populateChannelFieldsFromEsPayload(context,dialogContext) {
 }
 
 /**
+ * Populate the Redmine Details from the Dialogflow ES payload.
+ * @param {Object} context              The session props context.
+ * @param {DialogContext} dialogContext The dialog context.
+ * @returns the session props context.
+ */
+function populateRedmineFieldsFromEsPayload (context,dialogContext) {
+    let request = dialogContext.dialogflowAgent.request_.body.originalDetectIntentRequest;
+
+    context.parameters.redmineUserId = (request.payload.redmineUserId) ? request.payload.redmineUserId : '-1';
+    context.parameters.redmineOpenCaseId = (request.payload.redmineOpenCaseId) ? request.payload.redmineOpenCaseId : '-1';
+    context.parameters.advisoryNotice = (request.payload.advisoryNotice) ? request.payload.advisoryNotice : '';
+    context.parameters.customerFirstName = (request.payload.customerFirstName) ? request.payload.customerFirstName : 'Justin';
+    context.parameters.customerLastName = (request.payload.customerLastName) ? request.payload.customerLastName : 'Randall';
+    
+    return context;
+}
+
+/**
  * Create the WxCC Channel base detault parameters and values in the session context.
  * @param {Object} context              The session props context.
  * @returns the session props context.
  */
-function createChannelFieldsParams(context) {
+function createWxccChannelFieldsParams(context) {
     // Session and Channel Information
     context.parameters.sessionId = '';
     context.parameters.sessionInitialized = '0';
@@ -251,13 +269,31 @@ function createChannelFieldsParams(context) {
 
     return context;
 }
+/**
+ * Create the Redmine base detault parameters and values in the session context.
+ * @param {Object} context              The session props context.
+ * @returns the session props context, populated with Redmine fields and default values.
+ */
+function createRedmineFieldsParams(context) {
+    context.parameters.redmineUserId = '';
+    context.parameters.customerFirstName = '';
+    context.parameters.customerLastName = '';
+    context.parameters.accountNumber = '';
+    context.parameters.accountTier = ''; 
+    context.parameters.accountStatus = '';
+    context.parameters.preferredLanguage = '';
+    context.parameters.redmineOpenCaseId = '';
+    context.parameters.advisoryNotice = '';
+    
+    return context;
+}
 
 /**
  * Normalize a phone number into 10D format.
  * @param {string} phoneNumber   The phone number.
  * @returns the 10D formatted phone number.
  */
- function format10dPhoneNumber(phoneNumber) {
+function format10dPhoneNumber(phoneNumber) {
     if (phoneNumber.indexOf('+') === 0) {
         return phoneNumber.substring(2); // Strip +1
     }
@@ -267,4 +303,4 @@ function createChannelFieldsParams(context) {
     return phoneNumber;
 }
 
-module.exports = {injectJdsEvent,createRedmineIssue,getJdsPerson,populateChannelFieldsFromEsPayload,createChannelFieldsParams,format10dPhoneNumber};
+module.exports = {injectJdsEvent,createRedmineIssue,getJdsPerson,populateWxccChannelFieldsFromEsPayload,populateRedmineFieldsFromEsPayload,createWxccChannelFieldsParams,createRedmineFieldsParams,format10dPhoneNumber};
