@@ -90,6 +90,25 @@ class RedmineConnector extends Connector {
     }
     
     /**
+    * Create the Redmine base detault parameters and values in the session context.
+    * @param {Object} context              The session props context.
+    * @returns the session props context, populated with Redmine fields and default values.
+    */
+    static createRedmineFieldsParams(context) {
+        context.parameters.redmineUserId = '';
+        context.parameters.customerFirstName = '';
+        context.parameters.customerLastName = '';
+        context.parameters.accountNumber = '';
+        context.parameters.accountTier = ''; 
+        context.parameters.accountStatus = '';
+        context.parameters.preferredLanguage = '';
+        context.parameters.redmineOpenCaseId = '';
+        context.parameters.advisoryNotice = '';
+        
+        return context;
+    }
+
+    /**
      * Get the Redmine case creation factory template method.
      * 
      * @param {string} templateName     The case creation template name.
