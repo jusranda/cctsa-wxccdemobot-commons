@@ -30,9 +30,7 @@ const CXTR_WXCC_NAME = 'wxcc';
      * 
      * @param {Object} params The constructor parameters.
      */
-    constructor(params) {
-        if (params == undefined) { throw new Error('params is a required parameter for WebexCcConnector objects.'); }
-
+    constructor(params={}) {
         params.endpoint = axios;
         params.name = CXTR_WXCC_NAME;
         params.params = (params != undefined) ? params : {};
