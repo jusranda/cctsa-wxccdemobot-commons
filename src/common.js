@@ -218,58 +218,6 @@ function populateRedmineFieldsFromEsPayload (context,dialogContext) {
 }
 
 /**
- * Create the WxCC Channel base detault parameters and values in the session context.
- * @param {Object} context              The session props context.
- * @returns the session props context.
- */
-function createWxccChannelFieldsParams(context) {
-    // Session and Channel Information
-    context.sessionId = '';
-    context.sessionInitialized = '0';
-    context.interactionId = '';
-    context.wxccChannel = '';
-    context.interactionSource = '';
-        
-    context.origCallingNumber = '';
-    context.callingNumber = '';
-    context.origCalledNumber = '';
-    context.calledNumber = '';
-    context.origSmsNumber = '';
-    context.smsNumber = '';
-    context.origWhatsAppNumber = '';
-    context.whatsAppNumber = '';
-    context.origFbMessengerId = '';
-    context.fbMessengerId = '';
-    context.mail = '';
-        
-    context.identityPhoneNumber = '';
-    context.identityEmail = '';
-
-    context.secondChannel = '';
-    context.secondChannelAlias = '';
-    context.secondChannelAddrType = '';
-        
-    // Dialog Management
-    context.helpCounter = '0';
-    context.fallbackCounter = '0';
-    context.noInputCounter = '0';
-    context.sequenceCurrent = 'welcome';
-    context.sequenceStack = '';
-    context.lastEvent = '';
-    context.lastAction = '';
-    context.lastFulfillmentText = '';
-    context.fulfillmentBuffer = '';
-    context.offeredAgent = '0';
-    context.offeredAgentAccepted = '0';
-    context.offeredAgentDeclined = '0';
-    context.triggeredSkill = '0';
-    context.sayGoodbye = '0';
-    context.saidGoodbye = '0';
-
-    return context;
-}
-
-/**
  * Normalize a phone number into 10D format.
  * @param {string} phoneNumber   The phone number.
  * @returns the 10D formatted phone number.

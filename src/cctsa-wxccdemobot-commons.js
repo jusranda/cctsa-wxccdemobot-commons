@@ -20,6 +20,7 @@ const { registerModuleReasonForContact } = require("./sequences/reasonforcontact
 const { registerModuleResetPassword } = require("./sequences/resetpasswd");
 const { registerModuleCommon } = require("./sequences/common");
 const { registerModuleCovidScreen } = require("./sequences/covidscreen");
+const { WebexCcConnector } = require("./connectors/wxcc");
 const { RedmineConnector } = require("./connectors/redmine");
 const { WebexConnectConnector } = require("./connectors/webexconnect");
 const { GoogleCalendarConnector } = require("./connectors/googlecalendar");
@@ -39,4 +40,4 @@ function registerCommonModules(sequenceManager, intentManager) {
     registerModuleCommon(sequenceManager, intentManager);
 }
 
-module.exports = {registerCommonModules,registerModuleCovidScreen,RedmineConnector,WebexConnectConnector,GoogleCalendarConnector,JdsConnector};
+module.exports = {registerCommonModules,registerModuleCovidScreen,WebexCcConnector,RedmineConnector,WebexConnectConnector,GoogleCalendarConnector,JdsConnector};
