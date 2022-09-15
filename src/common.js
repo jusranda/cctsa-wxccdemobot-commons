@@ -15,7 +15,14 @@
 
 const { RedmineConnector } = require("./connectors/redmine");
 const { JdsConnector } = require("./connectors/jds");
+const { DialogContext } = require("codingforconvos/src/contexts");
 
+/**
+ * Constructs a JDS Person object.
+ * 
+ * @param {DialogContext} dialogContext The dialog context.
+ * @returns the newly created JDS Person object.
+ */
 function getJdsPerson(dialogContext) {
     let person = {};
 
@@ -36,6 +43,12 @@ IDENTITY_ALIAS.set('facebookMessenger', getIdentityFbMessengerId);
 IDENTITY_ALIAS.set('whatsapp', getIdentityWhatsAppNumber);
 IDENTITY_ALIAS.set('web', getIdentityEmail);
 
+/**
+ * Return the session property representing the in-use channel identity.
+ * 
+ * @param {DialogContext} dialogContext 
+ * @returns the session property representing the in-use channel identity.
+ */
 function getIdentityAlias(dialogContext) {
     if (IDENTITY_ALIAS.has(dialogContext.params.wxccChannel)) {
         return IDENTITY_ALIAS.get(dialogContext.params.wxccChannel)(dialogContext);
@@ -43,26 +56,63 @@ function getIdentityAlias(dialogContext) {
     return getIdentityPhoneNumber(dialogContext);
 }
 
+/**
+ * Return the session property representing the phone number identity.
+ * 
+ * @param {DialogContext} dialogContext 
+ * @returns the session property representing the phone number identity.
+ */
 function getIdentityPhoneNumber(dialogContext) {
     return '+1'+dialogContext.params.callingNumber;
 }
 
+/**
+ * Return the session property representing the SMS identity.
+ * 
+ * @param {DialogContext} dialogContext 
+ * @returns the session property representing the SMS identity.
+ */
 function getIdentitySmsNumber(dialogContext) {
     return '+1'+dialogContext.params.smsNumber;
 }
 
+/**
+ * Return the session property representing the WhatsApp identity.
+ * 
+ * @param {DialogContext} dialogContext 
+ * @returns the session property representing the WhatsApp identity.
+ */
 function getIdentityWhatsAppNumber(dialogContext) {
     return '+1'+dialogContext.params.whatsAppNumber;
 }
 
-function getIdentityFbMessengerId(dialogContext) {
+/**
+ * Return the session property representing the Facebook Messenger identity.
+ * 
+ * @param {DialogContext} dialogContext 
+ * @returns the session property representing the Facebook Messenger identity.
+ */
+ function getIdentityFbMessengerId(dialogContext) {
     return dialogContext.params.fbMessengerId;
 }
 
+/**
+ * Return the session property representing the Email identity.
+ * 
+ * @param {DialogContext} dialogContext 
+ * @returns the session property representing the Email identity.
+ */
 function getIdentityEmail(dialogContext) {
     return dialogContext.params.mail;
 }
 
+/**
+ * Injects a JDS event with parameters.
+ * 
+ * @param {DialogContext} dialogContext The dialog context.
+ * @param {string} origin               The JDS event origin value.
+ * @param {Object} dataParams           The JDS event data parameters.
+ */
 async function injectJdsEvent(dialogContext, origin, dataParams) {
     let jdsPerson = getJdsPerson(dialogContext);
 
@@ -81,6 +131,13 @@ async function injectJdsEvent(dialogContext, origin, dataParams) {
     });
 }
 
+/**
+ * Create a Redmine issue using a named template, and update session context.
+ * 
+ * @param {DialogContext} dialogContext The dialog context.
+ * @param {string} caseTemplateName     The case template name, or uses active sequence name if blank.
+ * @returns the newly created Redmine issue.
+ */
 async function createRedmineIssue (dialogContext, caseTemplateName='|') {
     const redmineApi = dialogContext.connectorManager.get(RedmineConnector.name());
 
@@ -101,4 +158,60 @@ async function createRedmineIssue (dialogContext, caseTemplateName='|') {
     return redmineNewIssue;
 }
 
-module.exports = {injectJdsEvent,createRedmineIssue,getJdsPerson};
+/**
+ * Populate the WxCC Channel Details from the Dialogflow ES payload.
+ * @param {Object} context              The session props context.
+ * @param {DialogContext} dialogContext The dialog context.
+ * @returns the session props context.
+ */
+function populateChannelFieldsFromEsPayload(context,dialogContext) {
+    let request = dialogContext.dialogflowAgent.request_.body.originalDetectIntentRequest;
+
+    let wxccChannel = (request.payload.wxccChannel) ? request.payload.wxccChannel : '';
+    context.parameters.wxccChannel = wxccChannel;
+    context.parameters.interactionId = (request.payload.RCK) ? request.payload.RCK : '';
+    context.parameters.interactionSource = (wxccChannel !== '') ? wxccChannel : ((dialogContext.dialogflowAgent.requestSource === undefined || dialogContext.dialogflowAgent.requestSource == null) ? 'chat' : dialogContext.dialogflowAgent.requestSource);
+    
+    context.parameters.mail = (request.payload.email) ? request.payload.email : '';
+
+    context.parameters.chatFormName = (request.payload.chatFormName) ? request.payload.chatFormName : '';
+    context.parameters.chatFormReason = (request.payload.chatFormReason) ? request.payload.chatFormReason : '';
+
+    context.parameters.origCallingNumber = (request.payload.ANI) ? request.payload.ANI : '';
+    context.parameters.callingNumber = format10dPhoneNumber(context.parameters.origCallingNumber);
+
+    context.parameters.origCalledNumber = (request.payload.DNIS) ? request.payload.DNIS : '';
+    context.parameters.calledNumber = format10dPhoneNumber(context.parameters.origCalledNumber);
+
+    context.parameters.origSmsNumber = (request.payload.smsNumber) ? request.payload.smsNumber : '';
+    context.parameters.smsNumber = (context.parameters.origSmsNumber !== '') ? format10dPhoneNumber(context.parameters.origSmsNumber) : context.parameters.callingNumber;
+
+    context.parameters.origWhatsAppNumber = (request.payload.whatsAppNumber) ? request.payload.whatsAppNumber : '';
+    context.parameters.whatsAppNumber = (context.parameters.origWhatsAppNumber !== '') ? format10dPhoneNumber(context.parameters.origWhatsAppNumber) : '';
+
+    context.parameters.origFbMessengerId = (request.payload.fbMessengerId) ? request.payload.fbMessengerId : '';
+    context.parameters.fbMessengerId = context.parameters.origFbMessengerId; // TODO: Look up profile information from Facebook API.
+
+    context.parameters.secondChannel = (context.parameters.interactionSource === 'sms') ? 'email' : 'sms';
+    context.parameters.secondChannelAlias = (context.parameters.interactionSource === 'sms') ? 'email' : 'text';
+    context.parameters.secondChannelAddrType = (context.parameters.interactionSource === 'sms') ? 'address' : 'phone number';
+
+    return context;
+}
+
+/**
+ * Normalize a phone number into 10D format.
+ * @param {string} phoneNumber   The phone number.
+ * @returns the 10D formatted phone number.
+ */
+ function format10dPhoneNumber(phoneNumber) {
+    if (phoneNumber.indexOf('+') === 0) {
+        return phoneNumber.substring(2); // Strip +1
+    }
+    if (phoneNumber.indexOf('1') === 0) {
+        return phoneNumber.substring(1); // Strip 1
+    }
+    return phoneNumber;
+}
+
+module.exports = {injectJdsEvent,createRedmineIssue,getJdsPerson,populateChannelFieldsFromEsPayload,format10dPhoneNumber};
