@@ -224,48 +224,48 @@ function populateRedmineFieldsFromEsPayload (context,dialogContext) {
  */
 function createWxccChannelFieldsParams(context) {
     // Session and Channel Information
-    context.parameters.sessionId = '';
-    context.parameters.sessionInitialized = '0';
-    context.parameters.interactionId = '';
-    context.parameters.wxccChannel = '';
-    context.parameters.interactionSource = '';
-    context.parameters.uuid = JdsConnector.createUuid();
+    context.sessionId = '';
+    context.sessionInitialized = '0';
+    context.interactionId = '';
+    context.wxccChannel = '';
+    context.interactionSource = '';
+    context.uuid = JdsConnector.createUuid();
         
-    context.parameters.origCallingNumber = '';
-    context.parameters.callingNumber = '';
-    context.parameters.origCalledNumber = '';
-    context.parameters.calledNumber = '';
-    context.parameters.origSmsNumber = '';
-    context.parameters.smsNumber = '';
-    context.parameters.origWhatsAppNumber = '';
-    context.parameters.whatsAppNumber = '';
-    context.parameters.origFbMessengerId = '';
-    context.parameters.fbMessengerId = '';
-    context.parameters.mail = '';
+    context.origCallingNumber = '';
+    context.callingNumber = '';
+    context.origCalledNumber = '';
+    context.calledNumber = '';
+    context.origSmsNumber = '';
+    context.smsNumber = '';
+    context.origWhatsAppNumber = '';
+    context.whatsAppNumber = '';
+    context.origFbMessengerId = '';
+    context.fbMessengerId = '';
+    context.mail = '';
         
-    context.parameters.identityPhoneNumber = '';
-    context.parameters.identityEmail = '';
+    context.identityPhoneNumber = '';
+    context.identityEmail = '';
 
-    context.parameters.secondChannel = '';
-    context.parameters.secondChannelAlias = '';
-    context.parameters.secondChannelAddrType = '';
+    context.secondChannel = '';
+    context.secondChannelAlias = '';
+    context.secondChannelAddrType = '';
         
     // Dialog Management
-    context.parameters.helpCounter = '0';
-    context.parameters.fallbackCounter = '0';
-    context.parameters.noInputCounter = '0';
-    context.parameters.sequenceCurrent = 'welcome';
-    context.parameters.sequenceStack = '';
-    context.parameters.lastEvent = '';
-    context.parameters.lastAction = '';
-    context.parameters.lastFulfillmentText = '';
-    context.parameters.fulfillmentBuffer = '';
-    context.parameters.offeredAgent = '0';
-    context.parameters.offeredAgentAccepted = '0';
-    context.parameters.offeredAgentDeclined = '0';
-    context.parameters.triggeredSkill = '0';
-    context.parameters.sayGoodbye = '0';
-    context.parameters.saidGoodbye = '0';
+    context.helpCounter = '0';
+    context.fallbackCounter = '0';
+    context.noInputCounter = '0';
+    context.sequenceCurrent = 'welcome';
+    context.sequenceStack = '';
+    context.lastEvent = '';
+    context.lastAction = '';
+    context.lastFulfillmentText = '';
+    context.fulfillmentBuffer = '';
+    context.offeredAgent = '0';
+    context.offeredAgentAccepted = '0';
+    context.offeredAgentDeclined = '0';
+    context.triggeredSkill = '0';
+    context.sayGoodbye = '0';
+    context.saidGoodbye = '0';
 
     return context;
 }
@@ -275,15 +275,15 @@ function createWxccChannelFieldsParams(context) {
  * @returns the session props context, populated with Redmine fields and default values.
  */
 function createRedmineFieldsParams(context) {
-    context.parameters.redmineUserId = '';
-    context.parameters.customerFirstName = '';
-    context.parameters.customerLastName = '';
-    context.parameters.accountNumber = '';
-    context.parameters.accountTier = ''; 
-    context.parameters.accountStatus = '';
-    context.parameters.preferredLanguage = '';
-    context.parameters.redmineOpenCaseId = '';
-    context.parameters.advisoryNotice = '';
+    context.redmineUserId = '';
+    context.customerFirstName = '';
+    context.customerLastName = '';
+    context.accountNumber = '';
+    context.accountTier = ''; 
+    context.accountStatus = '';
+    context.preferredLanguage = '';
+    context.redmineOpenCaseId = '';
+    context.advisoryNotice = '';
     
     return context;
 }
