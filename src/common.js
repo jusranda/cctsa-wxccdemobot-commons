@@ -200,6 +200,59 @@ function populateChannelFieldsFromEsPayload(context,dialogContext) {
 }
 
 /**
+ * Create the WxCC Channel base detault parameters and values in the session context.
+ * @param {Object} context              The session props context.
+ * @returns the session props context.
+ */
+function createChannelFieldsParams(context) {
+    // Session and Channel Information
+    context.parameters.sessionId = '';
+    context.parameters.sessionInitialized = '0';
+    context.parameters.interactionId = '';
+    context.parameters.wxccChannel = '';
+    context.parameters.interactionSource = '';
+    context.parameters.uuid = JdsConnector.createUuid();
+        
+    context.parameters.origCallingNumber = '';
+    context.parameters.callingNumber = '';
+    context.parameters.origCalledNumber = '';
+    context.parameters.calledNumber = '';
+    context.parameters.origSmsNumber = '';
+    context.parameters.smsNumber = '';
+    context.parameters.origWhatsAppNumber = '';
+    context.parameters.whatsAppNumber = '';
+    context.parameters.origFbMessengerId = '';
+    context.parameters.fbMessengerId = '';
+    context.parameters.mail = '';
+        
+    context.parameters.identityPhoneNumber = '';
+    context.parameters.identityEmail = '';
+
+    context.parameters.secondChannel = '';
+    context.parameters.secondChannelAlias = '';
+    context.parameters.secondChannelAddrType = '';
+        
+    // Dialog Management
+    context.parameters.helpCounter = '0';
+    context.parameters.fallbackCounter = '0';
+    context.parameters.noInputCounter = '0';
+    context.parameters.sequenceCurrent = 'welcome';
+    context.parameters.sequenceStack = '';
+    context.parameters.lastEvent = '';
+    context.parameters.lastAction = '';
+    context.parameters.lastFulfillmentText = '';
+    context.parameters.fulfillmentBuffer = '';
+    context.parameters.offeredAgent = '0';
+    context.parameters.offeredAgentAccepted = '0';
+    context.parameters.offeredAgentDeclined = '0';
+    context.parameters.triggeredSkill = '0';
+    context.parameters.sayGoodbye = '0';
+    context.parameters.saidGoodbye = '0';
+
+    return context;
+}
+
+/**
  * Normalize a phone number into 10D format.
  * @param {string} phoneNumber   The phone number.
  * @returns the 10D formatted phone number.
@@ -214,4 +267,4 @@ function populateChannelFieldsFromEsPayload(context,dialogContext) {
     return phoneNumber;
 }
 
-module.exports = {injectJdsEvent,createRedmineIssue,getJdsPerson,populateChannelFieldsFromEsPayload,format10dPhoneNumber};
+module.exports = {injectJdsEvent,createRedmineIssue,getJdsPerson,populateChannelFieldsFromEsPayload,createChannelFieldsParams,format10dPhoneNumber};
