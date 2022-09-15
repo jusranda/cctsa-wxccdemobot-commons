@@ -232,4 +232,4 @@ function format10dPhoneNumber(phoneNumber) {
     return phoneNumber;
 }
 
-module.exports = {injectJdsEvent,createRedmineIssue,getJdsPerson,populateWxccChannelFieldsFromEsPayload,populateRedmineFieldsFromEsPayload,createWxccChannelFieldsParams,format10dPhoneNumber};
+module.exports = {injectJdsEvent,createRedmineIssue,getJdsPerson,populateWxccChannelFieldsFromEsPayload,populateRedmineFieldsFromEsPayload,format10dPhoneNumber};
