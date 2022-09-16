@@ -159,65 +159,6 @@ async function createRedmineIssue (dialogContext, caseTemplateName='|') {
 }
 
 /**
- * Populate the WxCC Channel Details from the Dialogflow ES payload.
- * @param {Object} context              The session props context.
- * @param {DialogContext} dialogContext The dialog context.
- * @returns the session props context.
- */
-function populateWxccChannelFieldsFromEsPayload(context,dialogContext) {
-    let request = dialogContext.dialogflowAgent.request_.body.originalDetectIntentRequest;
-
-    let wxccChannel = (request.payload.wxccChannel) ? request.payload.wxccChannel : '';
-    context.parameters.wxccChannel = wxccChannel;
-    context.parameters.interactionId = (request.payload.RCK) ? request.payload.RCK : '';
-    context.parameters.interactionSource = (wxccChannel !== '') ? wxccChannel : ((dialogContext.dialogflowAgent.requestSource === undefined || dialogContext.dialogflowAgent.requestSource == null) ? 'chat' : dialogContext.dialogflowAgent.requestSource);
-    
-    context.parameters.mail = (request.payload.email) ? request.payload.email : '';
-
-    context.parameters.chatFormName = (request.payload.chatFormName) ? request.payload.chatFormName : '';
-    context.parameters.chatFormReason = (request.payload.chatFormReason) ? request.payload.chatFormReason : '';
-
-    context.parameters.origCallingNumber = (request.payload.ANI) ? request.payload.ANI : '';
-    context.parameters.callingNumber = format10dPhoneNumber(context.parameters.origCallingNumber);
-
-    context.parameters.origCalledNumber = (request.payload.DNIS) ? request.payload.DNIS : '';
-    context.parameters.calledNumber = format10dPhoneNumber(context.parameters.origCalledNumber);
-
-    context.parameters.origSmsNumber = (request.payload.smsNumber) ? request.payload.smsNumber : '';
-    context.parameters.smsNumber = (context.parameters.origSmsNumber !== '') ? format10dPhoneNumber(context.parameters.origSmsNumber) : context.parameters.callingNumber;
-
-    context.parameters.origWhatsAppNumber = (request.payload.whatsAppNumber) ? request.payload.whatsAppNumber : '';
-    context.parameters.whatsAppNumber = (context.parameters.origWhatsAppNumber !== '') ? format10dPhoneNumber(context.parameters.origWhatsAppNumber) : '';
-
-    context.parameters.origFbMessengerId = (request.payload.fbMessengerId) ? request.payload.fbMessengerId : '';
-    context.parameters.fbMessengerId = context.parameters.origFbMessengerId; // TODO: Look up profile information from Facebook API.
-
-    context.parameters.secondChannel = (context.parameters.interactionSource === 'sms') ? 'email' : 'sms';
-    context.parameters.secondChannelAlias = (context.parameters.interactionSource === 'sms') ? 'email' : 'text';
-    context.parameters.secondChannelAddrType = (context.parameters.interactionSource === 'sms') ? 'address' : 'phone number';
-
-    return context;
-}
-
-/**
- * Populate the Redmine Details from the Dialogflow ES payload.
- * @param {Object} context              The session props context.
- * @param {DialogContext} dialogContext The dialog context.
- * @returns the session props context.
- */
-function populateRedmineFieldsFromEsPayload (context,dialogContext) {
-    let request = dialogContext.dialogflowAgent.request_.body.originalDetectIntentRequest;
-
-    context.parameters.redmineUserId = (request.payload.redmineUserId) ? request.payload.redmineUserId : '-1';
-    context.parameters.redmineOpenCaseId = (request.payload.redmineOpenCaseId) ? request.payload.redmineOpenCaseId : '-1';
-    context.parameters.advisoryNotice = (request.payload.advisoryNotice) ? request.payload.advisoryNotice : '';
-    context.parameters.customerFirstName = (request.payload.customerFirstName) ? request.payload.customerFirstName : 'Justin';
-    context.parameters.customerLastName = (request.payload.customerLastName) ? request.payload.customerLastName : 'Randall';
-    
-    return context;
-}
-
-/**
  * Normalize a phone number into 10D format.
  * @param {string} phoneNumber   The phone number.
  * @returns the 10D formatted phone number.
@@ -232,4 +173,4 @@ function format10dPhoneNumber(phoneNumber) {
     return phoneNumber;
 }
 
-module.exports = {injectJdsEvent,createRedmineIssue,getJdsPerson,populateWxccChannelFieldsFromEsPayload,populateRedmineFieldsFromEsPayload,format10dPhoneNumber};
+module.exports = {injectJdsEvent,createRedmineIssue,getJdsPerson,format10dPhoneNumber};

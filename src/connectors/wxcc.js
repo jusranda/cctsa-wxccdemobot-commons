@@ -15,6 +15,7 @@
 
 const { Connector } = require("codingforconvos");
 const axios = require('axios');
+const { format10dPhoneNumber } = require("../common");
 
 const CXTR_WXCC_NAME = 'wxcc';
 
@@ -78,6 +79,41 @@ const CXTR_WXCC_NAME = 'wxcc';
             sayGoodbye: '0',
             saidGoodbye: '0'
         };
+
+        params.populateFromPayload = (context, dialogContext) => {
+            let payload = dialogContext.payload;
+
+            let wxccChannel = (payload.wxccChannel) ? payload.wxccChannel : '';
+            context.parameters.wxccChannel = wxccChannel;
+            context.parameters.interactionId = (payload.RCK) ? payload.RCK : '';
+            context.parameters.interactionSource = (wxccChannel !== '') ? wxccChannel : ((dialogContext.dialogflowAgent.requestSource === undefined || dialogContext.dialogflowAgent.requestSource == null) ? 'chat' : dialogContext.dialogflowAgent.requestSource);
+            
+            context.parameters.mail = (payload.email) ? payload.email : '';
+
+            context.parameters.chatFormName = (payload.chatFormName) ? payload.chatFormName : '';
+            context.parameters.chatFormReason = (payload.chatFormReason) ? payload.chatFormReason : '';
+
+            context.parameters.origCallingNumber = (payload.ANI) ? payload.ANI : '';
+            context.parameters.callingNumber = format10dPhoneNumber(context.parameters.origCallingNumber);
+
+            context.parameters.origCalledNumber = (payload.DNIS) ? payload.DNIS : '';
+            context.parameters.calledNumber = format10dPhoneNumber(context.parameters.origCalledNumber);
+
+            context.parameters.origSmsNumber = (payload.smsNumber) ? payload.smsNumber : '';
+            context.parameters.smsNumber = (context.parameters.origSmsNumber !== '') ? format10dPhoneNumber(context.parameters.origSmsNumber) : context.parameters.callingNumber;
+
+            context.parameters.origWhatsAppNumber = (payload.whatsAppNumber) ? payload.whatsAppNumber : '';
+            context.parameters.whatsAppNumber = (context.parameters.origWhatsAppNumber !== '') ? format10dPhoneNumber(context.parameters.origWhatsAppNumber) : '';
+
+            context.parameters.origFbMessengerId = (payload.fbMessengerId) ? payload.fbMessengerId : '';
+            context.parameters.fbMessengerId = context.parameters.origFbMessengerId; // TODO: Look up profile information from Facebook API.
+
+            context.parameters.secondChannel = (context.parameters.interactionSource === 'sms') ? 'email' : 'sms';
+            context.parameters.secondChannelAlias = (context.parameters.interactionSource === 'sms') ? 'email' : 'text';
+            context.parameters.secondChannelAddrType = (context.parameters.interactionSource === 'sms') ? 'address' : 'phone number';
+
+            return context;
+        }
 
         super(params);
     }
