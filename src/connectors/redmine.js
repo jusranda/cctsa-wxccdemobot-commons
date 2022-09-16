@@ -80,6 +80,21 @@ class RedmineConnector extends Connector {
             redmineOpenCaseId: '',
             advisoryNotice: ''
         };
+        params.populateFromPayload = (context, dialogContext) => {
+            let payload = dialogContext.payload;
+
+            context.parameters.redmineUserId = (payload.redmineUserId) ? payload.redmineUserId : '-1';
+            context.parameters.customerFirstName = (payload.customerFirstName) ? payload.customerFirstName : 'Justin';
+            context.parameters.customerLastName = (payload.customerLastName) ? payload.customerLastName : 'Randall';
+            context.parameters.accountNumber = (payload.accountNumber) ? payload.accountNumber : '';
+            context.parameters.accountTier = (payload.accountTier) ? payload.accountTier : '';
+            context.parameters.accountStatus = (payload.accountStatus) ? payload.accountStatus : '';
+            context.parameters.preferredLanguage = (payload.preferredLanguage) ? payload.preferredLanguage : '';
+            context.parameters.redmineOpenCaseId = (payload.redmineOpenCaseId) ? payload.redmineOpenCaseId : '-1';
+            context.parameters.advisoryNotice = (payload.advisoryNotice) ? payload.advisoryNotice : '';
+            
+            return context;
+        }
 
         super(params);
 
