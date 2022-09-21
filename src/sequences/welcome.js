@@ -38,6 +38,7 @@ function registerModuleWelcome(sequenceManager,intentManager) {
         authRequired: false,
         breakIntents: [ // Intents that break from the core flow before attempting sequence navigation.
             { action: 'welcome.ask.wellbeing', trigger: '1' }
+            { action: 'skill.appointment.rebook.rfc.confirm', trigger: '1' }
         ],
         params: {
             saidFirstWelcome: '0',
@@ -51,14 +52,24 @@ function registerModuleWelcome(sequenceManager,intentManager) {
             let context = dialogContext.getOrCreateCtx(SEQ_WELCOME_NAME);
     
             if (context.parameters.saidFirstWelcome === '0') {
-                if (context.parameters.saidIntro === '0') {
-                    let greetingEvent = dialogContext.respondWithEvent('SayIntro', dialogContext.params.lastFulfillmentText);
+                if (dialogContext.params.advisoryEvent !== '') {
+                    if (context.parameters.saidIntro === '0') {
+                        let greetingEvent = dialogContext.respondWithEvent('SayIntroFamiliar', dialogContext.params.lastFulfillmentText);
+                        return;
+                    }
+
+                    let greetingEvent = dialogContext.respondWithEvent(dialogContext.params.advisoryEvent, dialogContext.params.lastFulfillmentText);
                     return;
-                }
-    
-                if (context.parameters.askedWellbeing === '0') {
-                    let askWellbeingEvent = dialogContext.respondWithEvent('AskWellbeing', dialogContext.params.lastFulfillmentText);
-                    return;
+                } else {
+                    if (context.parameters.saidIntro === '0') {
+                        let greetingEvent = dialogContext.respondWithEvent('SayIntro', dialogContext.params.lastFulfillmentText);
+                        return;
+                    }
+        
+                    if (context.parameters.askedWellbeing === '0') {
+                        let askWellbeingEvent = dialogContext.respondWithEvent('AskWellbeing', dialogContext.params.lastFulfillmentText);
+                        return;
+                    }
                 }
     
                 dialogContext.setParam(context, 'saidFirstWelcome', '1');
@@ -86,6 +97,16 @@ function registerModuleWelcome(sequenceManager,intentManager) {
         sequenceName: SEQ_WELCOME_NAME,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
+            return;
+        }
+    }));
+
+    intentManager.registerIntent(new Intent({
+        action: 'welcome.say.intro.familiar',
+        sequenceName: SEQ_WELCOME_NAME,
+        handler: (dialogContext) => {
+            dialogContext.appendFulfillmentText();
+            dialogContext.setCurrentParam('saidIntro', '1');
             return;
         }
     }));
