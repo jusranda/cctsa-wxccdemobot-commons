@@ -15,6 +15,7 @@
 
 const { Connector,fmtLog } = require("codingforconvos");
 const Redmine = require('axios-redmine');
+const { DialogContext } = require("codingforconvos/src/contexts");
 
 const CXTR_REDMINE_NAME = 'redmine';
 
@@ -91,6 +92,7 @@ class RedmineConnector extends Connector {
             context.parameters.accountStatus = (payload.accountStatus) ? payload.accountStatus : '';
             context.parameters.preferredLanguage = (payload.preferredLanguage) ? payload.preferredLanguage : '';
             context.parameters.redmineOpenCaseId = (payload.redmineOpenCaseId) ? payload.redmineOpenCaseId : '-1';
+            context.parameters.redmineOpenAppointmentId = (payload.redmineOpenAppointmentId) ? payload.redmineOpenAppointmentId : '-1';
             context.parameters.advisoryNotice = (payload.advisoryNotice) ? payload.advisoryNotice : '';
             
             return context;
@@ -185,6 +187,9 @@ class RedmineConnector extends Connector {
                 case 'Open Case ID':
                     responseUser.openCaseId = cf.value;
                     break;
+                case 'Open Appointment ID':
+                    responseUser.openAppointmentId = cf.value;
+                    break;
                 case 'Advisory':
                     responseUser.advisory = cf.value;
                     break;
@@ -203,7 +208,7 @@ class RedmineConnector extends Connector {
      * @param {string} email The email.
      * @returns a parsed Redmine User with accessible custom fields.
      */
-     async findRedmineUsersByEmail(email) {
+    async findRedmineUsersByEmail(email) {
         this._redmineUsersByEmail = [];
         await super.endpoint
             .users({ include: 'memberships,groups' })
@@ -420,6 +425,13 @@ class RedmineConnector extends Connector {
             .catch(err => { console.log(err); });
     }
 
+    /**
+     * Populate the session props with Redmine user lookup details.
+     * 
+     * @param {Object} ctxSessionProps   The session props.
+     * @param {Object} redmineUser       The Redmine API result user.
+     * @returns the session props.
+     */
     static populateFromRedmineUser(ctxSessionProps, redmineUser) {
         ctxSessionProps.parameters.smsNumber = redmineUser.mobileNumber;
         ctxSessionProps.parameters.redmineUserId = Math.floor(redmineUser.id).toString(); // convert from float->int->string
@@ -427,6 +439,7 @@ class RedmineConnector extends Connector {
         ctxSessionProps.parameters.customerFirstName = redmineUser.firstName;
         ctxSessionProps.parameters.customerLastName = redmineUser.lastName;
         ctxSessionProps.parameters.redmineOpenCaseId = redmineUser.openCaseId;
+        ctxSessionProps.parameters.redmineOpenAppointmentId = redmineUser.openAppointmentId;
         ctxSessionProps.parameters.accountNumber = redmineUser.accountNumber;
         ctxSessionProps.parameters.accountTier = redmineUser.accountTier;
         ctxSessionProps.parameters.accountStatus = redmineUser.accountStatus;
@@ -436,6 +449,13 @@ class RedmineConnector extends Connector {
         return ctxSessionProps;
     }
     
+    /**
+     * Populate the session props with Redmine user lookup details.
+     * 
+     * @param {Object} ctxSessionProps      The session props.
+     * @param {DialogContext} dialogContext The dialog context.
+     * @returns the session props.
+     */
     static async populateFromRedmineLookup(ctxSessionProps, dialogContext) {
         if (ctxSessionProps.parameters.callingNumber !== '') {
             console.log(fmtLog('populateFromRedmineLookup', 'Lookup Redmine User by Calling Number '+ctxSessionProps.parameters.callingNumber, dialogContext));
@@ -453,6 +473,14 @@ class RedmineConnector extends Connector {
         return ctxSessionProps;
     }
     
+    /**
+     * Populate the session props with Redmine user lookup by phone number.
+     * 
+     * @param {Object} ctxSessionProps      The session props.
+     * @param {string} phoneNumber          The phone number.
+     * @param {DialogContext} dialogContext The dialog context.
+     * @returns the session props.
+     */
     static async populateFromRedmineMobileNumber(ctxSessionProps, phoneNumber, dialogContext) {
         console.log('Creating the CTX_AUTH sequence.');
         let context = dialogContext.getOrCreateCtx(CTX_AUTH);
@@ -492,6 +520,14 @@ class RedmineConnector extends Connector {
         return ctxSessionProps;
     }
 
+    /**
+     * Populate the session props with Redmine user lookup by email.
+     * 
+     * @param {Object} ctxSessionProps      The session props.
+     * @param {string} email                The email.
+     * @param {DialogContext} dialogContext The dialog context.
+     * @returns the session props.
+     */
     static async populateFromRedmineEmail(ctxSessionProps, email, dialogContext) {
         console.log('Creating the CTX_AUTH sequence.');
         let context = dialogContext.getOrCreateCtx(CTX_AUTH);
@@ -529,6 +565,24 @@ class RedmineConnector extends Connector {
         console.log('populateFromRedmineEmail: ' + JSON.stringify(resultUser));
     
         return ctxSessionProps;
+    }
+
+    /**
+     * Get a Redmine issue by ID.
+     * 
+     * @param {number} issueId The Redmine issue ID.
+     * @returns the Redmine issue.
+     */
+    async getRedmineIssue(issueId) {
+        let redmineFoundIssue = undefined;
+        await super.endpoint
+            .get_issue_by_id(issueId)
+            .then(response => {
+                redmineFoundIssue = response.data.issue;
+            })
+            .catch(err => { console.log(err); });
+
+        return redmineFoundIssue;
     }
         
 }
