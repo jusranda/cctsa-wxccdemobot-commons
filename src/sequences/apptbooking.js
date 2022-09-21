@@ -15,7 +15,7 @@
 
 const { Intent, IntentManager, Sequence, SequenceManager, fmtLog } = require("codingforconvos");
 const { RedmineConnector } = require("../connectors/redmine");
-const { RedmineConnector } = require("../connectors/googlecalendar");
+const { GoogleCalendarConnector } = require("../connectors/googlecalendar");
 const { injectJdsEvent } = require("../common");
 
 // Define Sequence Name Constants.
