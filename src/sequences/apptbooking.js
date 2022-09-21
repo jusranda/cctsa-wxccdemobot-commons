@@ -49,7 +49,7 @@ async function injectAppointmentBookingFailureEvent(dialogContext) {
         identityRequired: false,
         authRequired: false,
         breakIntents: [ // Intents that break from the core flow before attempting sequence navigation.
-            { action: 'skill.appointment.rebook.rfc.confirm', trigger: '1' },
+            { action: 'skill.appointment.rebook.rfc.confirm', trigger: '1' }
         ],
         params: {
             accepted: '0',

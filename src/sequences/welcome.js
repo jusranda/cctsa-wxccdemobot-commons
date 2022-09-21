@@ -37,7 +37,7 @@ function registerModuleWelcome(sequenceManager,intentManager) {
         identityRequired: false,
         authRequired: false,
         breakIntents: [ // Intents that break from the core flow before attempting sequence navigation.
-            { action: 'welcome.ask.wellbeing', trigger: '1' }
+            { action: 'welcome.ask.wellbeing', trigger: '1' },
             { action: 'skill.appointment.rebook.rfc.confirm', trigger: '1' }
         ],
         params: {
