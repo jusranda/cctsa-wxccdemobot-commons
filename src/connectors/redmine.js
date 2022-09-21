@@ -79,7 +79,9 @@ class RedmineConnector extends Connector {
             accountStatus: '',
             preferredLanguage: '',
             redmineOpenCaseId: '',
-            advisoryNotice: ''
+            redmineOpenAppointmentId: '',
+            advisoryNotice: '',
+            advisoryEvent: ''
         };
         params.populateFromPayload = (context, dialogContext) => {
             let payload = dialogContext.payload;
@@ -94,6 +96,7 @@ class RedmineConnector extends Connector {
             context.parameters.redmineOpenCaseId = (payload.redmineOpenCaseId) ? payload.redmineOpenCaseId : '-1';
             context.parameters.redmineOpenAppointmentId = (payload.redmineOpenAppointmentId) ? payload.redmineOpenAppointmentId : '-1';
             context.parameters.advisoryNotice = (payload.advisoryNotice) ? payload.advisoryNotice : '';
+            context.parameters.advisoryEvent = (payload.advisoryEvent) ? payload.advisoryEvent : '';
             
             return context;
         }
@@ -192,6 +195,9 @@ class RedmineConnector extends Connector {
                     break;
                 case 'Advisory':
                     responseUser.advisory = cf.value;
+                    break;
+                case 'Advisory Event':
+                    responseUser.advisoryEvent = cf.value;
                     break;
                 default:
                     // do nothing for unknown customer fields.
@@ -445,6 +451,7 @@ class RedmineConnector extends Connector {
         ctxSessionProps.parameters.accountStatus = redmineUser.accountStatus;
         ctxSessionProps.parameters.preferredLanguage = redmineUser.preferredLanguage;
         ctxSessionProps.parameters.advisory = redmineUser.advisory;
+        ctxSessionProps.parameters.advisoryEvent = redmineUser.advisoryEvent;
     
         return ctxSessionProps;
     }
