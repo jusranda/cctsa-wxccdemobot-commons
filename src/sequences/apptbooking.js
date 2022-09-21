@@ -226,8 +226,8 @@ async function injectAppointmentBookingFailureEvent(dialogContext) {
     });
     intentManager.registerIntents({
         actions: [
-            'skill.covidscreen.required.confirmation.no',
-            'skill.covidscreen.required.confirmation.notable'
+            'skill.appointment.rebook.rfc.confirm.confirmation.no',
+            'skill.appointment.rebook.rfc.confirm.confirmation.notable'
         ],
         sequenceName: SEQ_APPTBOOKING_NAME,
         handler: (dialogContext) => {
