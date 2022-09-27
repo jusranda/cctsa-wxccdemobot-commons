@@ -38,12 +38,11 @@ async function injectAppointmentBookingFailureEvent(dialogContext) {
 /**
  * Registers the sequences and intents for the appointment booking module.
  * 
- * @param {SequenceManager} sequenceManager The sequencer manager.
- * @param {IntentManager} intentManager     The intent manager.
+ * @param {ConvoClient} convoClient The convo client.
  */
- function registerModuleAppointmentBooking(sequenceManager,intentManager) {
+ function registerModuleAppointmentBooking(convoClient) {
     // Register Sequence.
-    sequenceManager.registerSequence(new Sequence({
+    convoClient.registerSequence(new Sequence({
         name: SEQ_APPTBOOKING_NAME, // Sequence name, also used for Dialogflow context name.
         activity: 'booking your appointment', // Activity description, used in course correction.
         identityRequired: false,
@@ -67,139 +66,29 @@ async function injectAppointmentBookingFailureEvent(dialogContext) {
         navigate: (dialogContext) => { // Navigate the sequence forward.
             let context = dialogContext.getOrCreateCtx(SEQ_APPTBOOKING_NAME);
 
-            if (context.parameters.triagePassOrFail !== '') {
-                if (context.parameters.triagePassOrFail === 'pass') {
-                    let event = dialogContext.respondWithEvent('CovidScreenTriageNumber');
-                    return;
-                } else {
-                    if (context.parameters.rebookOffered === '0') {
-                        let event = dialogContext.respondWithEvent('CovidScreenRebookAppt');
-                        return;
-                    }
-
-                    if (context.parameters.rebookAccepted === '1') {
-                        let event = dialogContext.respondWithEvent('EscalateToAgent', dialogContext.params.lastFulfillmentText);
-                        return;
-                    } else {
-                        dialogContext.resetOfferedAgentFlags();
-                        console.log('Calling popSequenceAndNavigate');
-                        dialogContext.popSequenceAndNavigate(SEQ_APPTBOOKING_NAME);
-                        return;
-                    }
-                }
+            if (context.parameters.rebookIntentReceived === '1' && context.parameters.rebookIntentConfirmed === '1') {
+                let event = dialogContext.respondWithEvent('EscalateToAgent', dialogContext.params.lastFulfillmentText);
+                return;
             }
 
-            if (context.parameters.accepted === '0' && context.parameters.declined === '0') {
-                let event = dialogContext.respondWithEvent('CovidScreenRequired');
+            if (context.parameters.rebookIntentReceived === '1' && context.parameters.rebookIntentDeclined === '1') {
+                let event = dialogContext.respondWithEvent('AskReasonForContact');
+                return;
+            }
+
+            if (context.parameters.rebookIntentReceived === '0') {
+                let event = dialogContext.respondWithEvent('RfcConfirmAppointmentRebook', dialogContext.params.lastFulfillmentText);
                 return;
             }
     
-            if (context.parameters.declined === '1') {
-                let event = dialogContext.respondWithEvent('CovidScreenDeclined');
-                return;
-            }
-    
-            if (context.parameters.accepted === '1') {
-                if (context.parameters.q1acomplete === '0') {
-                    let event = dialogContext.respondWithEvent('CovidScreenQ1A');
-                    return;
-                }
-                if (context.parameters.q1brequired === '1' && context.parameters.q1bcomplete === '0') {
-                    let event = dialogContext.respondWithEvent('CovidScreenQ1B');
-                    return;
-                }
-
-                if (context.parameters.q2complete === '0') {
-                    let event = dialogContext.respondWithEvent('CovidScreenQ2');
-                    return;
-                }
-
-                if (context.parameters.q3complete === '0') {
-                    let event = dialogContext.respondWithEvent('CovidScreenQ3');
-                    return;
-                }
-
-                if (context.parameters.q4acomplete === '0') {
-                    let event = dialogContext.respondWithEvent('CovidScreenQ4A');
-                    return;
-                }
-                if (context.parameters.q4brequired === '1' && context.parameters.q4bcomplete === '0') {
-                    let event = dialogContext.respondWithEvent('CovidScreenQ4B');
-                    return;
-                }
-
-                if (context.parameters.q5acomplete === '0') {
-                    let event = dialogContext.respondWithEvent('CovidScreenQ5A');
-                    return;
-                }
-                if (context.parameters.q5brequired === '1' && context.parameters.q5bcomplete === '0') {
-                    let event = dialogContext.respondWithEvent('CovidScreenQ5B');
-                    return;
-                }
-
-                if (context.parameters.q6acomplete === '0') {
-                    let event = dialogContext.respondWithEvent('CovidScreenQ6A');
-                    return;
-                }
-
-                if (context.parameters.q6brequired === '1' && context.parameters.q6bcomplete === '0') {
-                    let event = dialogContext.respondWithEvent('CovidScreenQ6B');
-                    return;
-                }
-
-                let event = dialogContext.respondWithEvent('CovidScreenComplete');
-                return;
-            }
-    
-            console.log(fmtLog('authentication.navigate', 'action: '+dialogContext.currentAction+', lastFulfillmentText: '+dialogContext.params.lastFulfillmentText, dialogContext));
+            console.log(fmtLog('apptbooking.navigate', 'action: '+dialogContext.currentAction+', lastFulfillmentText: '+dialogContext.params.lastFulfillmentText, dialogContext));
             dialogContext.respondWithText();
             return;
         }
     }));
 
-    function summarizeBooking (dialogContext) {
-        let context = dialogContext.getOrCreateCtx(SEQ_APPTBOOKING_NAME);
-
-        let triage = {};
-        let symptoms = [];
-
-        let passOrFail = 'pass';
-
-        triage.diagnosedWithCovid = context.parameters.q1aresult;
-        if (triage.diagnosedWithCovid === 'true') {
-            passOrFail = 'fail';
-            triage.diagnosedWithCovidDate = context.parameters.q1bresult;
-        }
-
-        triage.livesWithCovid = context.parameters.q2result;
-
-        if (context.parameters.q3result === 'true') {
-            passOrFail = 'fail';
-            symptoms.push('fever');
-        }
-
-        if (context.parameters.q4aresult === 'true') {
-            passOrFail = 'fail';
-            symptoms = symptoms.concat(context.parameters.q4bresult);
-        }
-        if (context.parameters.q5aresult === 'true') {
-            passOrFail = 'fail';
-            symptoms = symptoms.concat(context.parameters.q5bresult);
-        }
-
-        if (context.parameters.q6aresult === 'true') {
-            passOrFail = 'fail';
-            triage.countryName = context.parameters.q6bresult;
-        }
-        triage.symptoms = symptoms;
-
-        triage.passOrFail = passOrFail;
-
-        return triage;
-    }
-    
     // Register Intent Handlers.
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.appointment.rebook.rfc.confirm',
         sequenceName: SEQ_APPTBOOKING_NAME,
         handler: (dialogContext) => {
@@ -207,7 +96,7 @@ async function injectAppointmentBookingFailureEvent(dialogContext) {
             return;
         }
     }));
-    intentManager.registerIntents({
+    convoClient.registerIntents({
         actions: [
             'skill.appointment.rebook.rfc.confirm.confirmation.yes',
             'skill.appointment.rebook.rfc.confirm.confirmation.able'
@@ -221,10 +110,12 @@ async function injectAppointmentBookingFailureEvent(dialogContext) {
                 'rebookIntentDeclined': '0'
             });
             dialogContext.deleteCtx('skillappointmentrebookrfcconfirm-followup');
+
+            dialogContext.pushSequence(SEQ_APPTBOOKING_NAME);
             return;
         }
     });
-    intentManager.registerIntents({
+    convoClient.registerIntents({
         actions: [
             'skill.appointment.rebook.rfc.confirm.confirmation.no',
             'skill.appointment.rebook.rfc.confirm.confirmation.notable'
@@ -238,6 +129,8 @@ async function injectAppointmentBookingFailureEvent(dialogContext) {
                 'rebookIntentDeclined': '1'
             });
             dialogContext.deleteCtx('skillappointmentrebookrfcconfirm-followup');
+
+            dialogContext.pushSequence(SEQ_APPTBOOKING_NAME);
             return;
         }
     });
