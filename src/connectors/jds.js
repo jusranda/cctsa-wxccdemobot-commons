@@ -48,6 +48,7 @@ const JDS_CHANNEL_TYPES = {
         if (params == undefined) { throw new Error('params is a required for constructing WebexConnectConnector objects.'); }
         if (params.jdsUrl == undefined) { throw new Error('jdsUrl is a required parameter for constructing WebexConnectConnector objects.'); }
         if (params.dsSasToken == undefined) { throw new Error('dsSasToken is a required parameter for constructing WebexConnectConnector objects.'); }
+        if (params.tapeSasToken == undefined) { throw new Error('tapeSasToken is a required parameter for constructing WebexConnectConnector objects.'); }
         
         params.endpoint = axios;
         params.name = CXTR_JDS_NAME;
@@ -59,6 +60,7 @@ const JDS_CHANNEL_TYPES = {
         super(params);
 
         this.injectJdsEvent = this.injectJdsEvent.bind(this);
+        this.fetchJdsEvents = this.fetchJdsEvents.bind(this);
     }
 
     static channelType(wxccChannel) {
@@ -142,7 +144,6 @@ const JDS_CHANNEL_TYPES = {
             "data": eventParams
         };
 
-        
         //let dataString = JSON.stringify(data);
         //console.log(`data: ${dataString}`);
         
@@ -167,6 +168,48 @@ const JDS_CHANNEL_TYPES = {
             }
             console.log("Error - End");
         });
+    }
+
+    /**
+     * Retrieve customer journey data events for a person.
+     * 
+     * @param {string} personAlias  The person alias.
+     * @param {Object} params       The optional parameters to control pagination and window size.
+     * @returns the JDS event tape.
+     */
+    async fetchJdsEvents(personAlias, params={}) {
+        let url = super.params.jdsUrl+'/v1/journey/streams/historic/';
+
+        // Validate the input parameters.
+        if (personAlias == undefined) { throw new Error('personAlias object for creating JDS event objects is missing.'); }
+        
+        console.log(`JdsConnector.fetchJdsEvents().personAlias: ${personAlias}`);
+        url = url+personAlias;
+
+        let finalResponse = {};
+        await axios.get(url, {
+            params: params,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': super.params.tapeSasToken
+            }
+        })
+        .then((response) => {
+            console.log("Success - "+response.status+' '+response.data);
+
+            finalResponse = response.data;
+        })
+        .catch((error) => {
+            console.log("Error - Start");
+            if (error.response) {
+                console.log(error.response.data);
+                console.log(error.response.status);
+                console.log(error.response.headers);
+            }
+            console.log("Error - End");
+        });
+
+        return finalResponse;
     }
 }
 
