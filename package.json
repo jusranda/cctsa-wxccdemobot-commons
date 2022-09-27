@@ -24,7 +24,7 @@
   "homepage": "https://github.com/jusranda/cctsa-wxccdemobot-commons#readme",
   "dependencies": {
     "axios-redmine": "^0.1.17",
-    "codingforconvos": "^0.0.109",
+    "codingforconvos": "^0.0.110",
     "dialogflow-fulfillment": "^0.6.1",
     "googleapis": "^105.0.0"
   }
