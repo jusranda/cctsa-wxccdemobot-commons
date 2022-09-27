@@ -31,15 +31,14 @@ const { JdsConnector } = require("./connectors/jds");
 /**
  * Registers the sequences and intents for all commons modules.
  * 
- * @param {SequenceManager} sequenceManager The sequencer manager.
- * @param {IntentManager} intentManager     The intent manager.
+ * @param {ConvoClient} convoClient The convo client.
  */
-function registerCommonModules(sequenceManager, intentManager) {
-    registerModuleWelcome(sequenceManager, intentManager);
-    registerModuleAuthentication(sequenceManager, intentManager);
-    registerModuleReasonForContact(sequenceManager, intentManager);
-    registerModuleResetPassword(sequenceManager, intentManager);
-    registerModuleCommon(sequenceManager, intentManager);
+function registerCommonModules(convoClient) {
+    registerModuleWelcome(convoClient);
+    registerModuleAuthentication(convoClient);
+    registerModuleReasonForContact(convoClient);
+    registerModuleResetPassword(convoClient);
+    registerModuleCommon(convoClient);
 }
 
 module.exports = {registerCommonModules,registerModuleCovidScreen,registerModuleAppointmentBooking,WebexCcConnector,RedmineConnector,WebexConnectConnector,GoogleCalendarConnector,JdsConnector,format10dPhoneNumber};

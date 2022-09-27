@@ -13,7 +13,7 @@
  * see <https://www.gnu.org/licenses/>.
  */
 
-const { Intent, IntentManager, Sequence, SequenceManager, fmtLog } = require("codingforconvos");
+const { Intent, Sequence, fmtLog } = require("codingforconvos");
 
 const CTX_RFC_NAME = 'reasonforcontact';
 
@@ -24,12 +24,11 @@ const CTX_RFC_NAME = 'reasonforcontact';
 /**
  * Registers the sequences and intents for the reason for contact module.
  * 
- * @param {SequenceManager} sequenceManager The sequencer manager.
- * @param {IntentManager} intentManager     The intent manager.
+ * @param {ConvoClient} convoClient The convo client.
  */
- function registerModuleReasonForContact(sequenceManager,intentManager) {
+ function registerModuleReasonForContact(convoClient) {
     // Register Sequence.
-    sequenceManager.registerSequence(new Sequence({
+    convoClient.registerSequence(new Sequence({
         name: CTX_RFC_NAME, // Sequence name, also used for Dialogflow context name.
         activity: 'figuring out how I can help you', // Activity description, used in course correction.
         identityRequired: false,
@@ -73,7 +72,7 @@ const CTX_RFC_NAME = 'reasonforcontact';
 
 
     // Register Intent Handlers.
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.reasonforcontact',
         sequenceName: CTX_RFC_NAME,
         handler: (dialogContext) => {
@@ -97,7 +96,7 @@ const CTX_RFC_NAME = 'reasonforcontact';
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.reasonforcontact.fallback',
         sequenceName: CTX_RFC_NAME,
         handler: (dialogContext) => {
@@ -106,7 +105,7 @@ const CTX_RFC_NAME = 'reasonforcontact';
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.reasonforcontact.wellbeing.positive',
         sequenceName: CTX_RFC_NAME,
         handler: (dialogContext) => {
@@ -118,7 +117,7 @@ const CTX_RFC_NAME = 'reasonforcontact';
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.resetpassword',
         sequenceName: CTX_RFC_NAME,
         handler: (dialogContext) => {
@@ -128,7 +127,7 @@ const CTX_RFC_NAME = 'reasonforcontact';
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen',
         sequenceName: CTX_RFC_NAME,
         handler: (dialogContext) => {

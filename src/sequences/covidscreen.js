@@ -13,7 +13,7 @@
  * see <https://www.gnu.org/licenses/>.
  */
 
-const { Intent, IntentManager, Sequence, SequenceManager, fmtLog } = require("codingforconvos");
+const { Intent, Sequence, fmtLog } = require("codingforconvos");
 const { RedmineConnector } = require("../connectors/redmine");
 const { injectJdsEvent } = require("../common");
 
@@ -35,14 +35,13 @@ async function injectCovidScreenFailureEvent(dialogContext) {
 }
 
 /**
- * Registers the sequences and intents for the authentication module.
+ * Registers the sequences and intents for the covid screen module.
  * 
- * @param {SequenceManager} sequenceManager The sequencer manager.
- * @param {IntentManager} intentManager     The intent manager.
+ * @param {ConvoClient} convoClient The convo client.
  */
- function registerModuleCovidScreen(sequenceManager,intentManager) {
+ function registerModuleCovidScreen(convoClient) {
     // Register Sequence.
-    sequenceManager.registerSequence(new Sequence({
+    convoClient.registerSequence(new Sequence({
         name: SEQ_COVIDSCREEN_NAME, // Sequence name, also used for Dialogflow context name.
         activity: 'completing your Covid-19 in-person admittance questionnaire', // Activity description, used in course correction.
         identityRequired: false,
@@ -238,7 +237,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     }
     
     // Register Intent Handlers.
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.required',
         sequenceName: SEQ_COVIDSCREEN_NAME,
         handler: (dialogContext) => {
@@ -246,7 +245,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
             return;
         }
     }));
-    intentManager.registerIntents({
+    convoClient.registerIntents({
         actions: [
             'skill.covidscreen.required.confirmation.yes',
             'skill.covidscreen.required.confirmation.able'
@@ -262,7 +261,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
             return;
         }
     });
-    intentManager.registerIntents({
+    convoClient.registerIntents({
         actions: [
             'skill.covidscreen.required.confirmation.no',
             'skill.covidscreen.required.confirmation.notable'
@@ -278,7 +277,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
         }
     });
 
-    intentManager.registerIntents({
+    convoClient.registerIntents({
         actions: [
             'skill.covidscreen.q1a',
             'skill.covidscreen.q1b',
@@ -299,7 +298,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     });
 
     // Question #1 Intents
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q1a.confirmation.yes',
         sequenceName: SEQ_COVIDSCREEN_NAME,
         handler: (dialogContext) => {
@@ -312,7 +311,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
             return;
         }
     }));
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q1a.confirmation.no',
         sequenceName: SEQ_COVIDSCREEN_NAME,
         handler: (dialogContext) => {
@@ -325,7 +324,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
             return;
         }
     }));
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q1b.confirmation.yes',
         sequenceName: SEQ_COVIDSCREEN_NAME,
         handler: (dialogContext) => {
@@ -337,7 +336,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
             return;
         }
     }));
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q1b.confirmation.no',
         sequenceName: SEQ_COVIDSCREEN_NAME,
         handler: (dialogContext) => {
@@ -351,7 +350,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     }));
 
     function registerCommonCovidQuestion(questionId) {
-        intentManager.registerIntent(new Intent({
+        convoClient.registerIntent(new Intent({
             action: 'skill.covidscreen.'+questionId+'.confirmation.yes',
             sequenceName: SEQ_COVIDSCREEN_NAME,
             handler: (dialogContext) => {
@@ -363,7 +362,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
                 return;
             }
         }));
-        intentManager.registerIntent(new Intent({
+        convoClient.registerIntent(new Intent({
             action: 'skill.covidscreen.'+questionId+'.confirmation.no',
             sequenceName: SEQ_COVIDSCREEN_NAME,
             handler: (dialogContext) => {
@@ -381,7 +380,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     commonQuestions.forEach(questionId => registerCommonCovidQuestion(questionId));
 
     // Question #4 Intents
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q4a.healthcare.symptoms',
         sequenceName: SEQ_COVIDSCREEN_NAME,
         handler: (dialogContext) => {
@@ -395,7 +394,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
             return;
         }
     }));
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q4a.confirmation.yes',
         sequenceName: SEQ_COVIDSCREEN_NAME,
         handler: (dialogContext) => {
@@ -408,7 +407,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
             return;
         }
     }));
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q4a.confirmation.no',
         sequenceName: SEQ_COVIDSCREEN_NAME,
         handler: (dialogContext) => {
@@ -421,7 +420,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
             return;
         }
     }));
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q4b.healthcare.symptoms',
         sequenceName: SEQ_COVIDSCREEN_NAME,
         handler: (dialogContext) => {
@@ -433,7 +432,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
             return;
         }
     }));
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q4b.confirmation.yes',
         sequenceName: SEQ_COVIDSCREEN_NAME,
         handler: (dialogContext) => {
@@ -445,7 +444,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
             return;
         }
     }));
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q4b.confirmation.no',
         sequenceName: SEQ_COVIDSCREEN_NAME,
         handler: (dialogContext) => {
@@ -459,7 +458,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     }));
 
     // Question #5 Intents
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q5a.healthcare.symptoms',
         sequenceName: SEQ_COVIDSCREEN_NAME,
         handler: (dialogContext) => {
@@ -473,7 +472,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
             return;
         }
     }));
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q5a.confirmation.yes',
         sequenceName: SEQ_COVIDSCREEN_NAME,
         handler: (dialogContext) => {
@@ -486,7 +485,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
             return;
         }
     }));
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q5a.confirmation.no',
         sequenceName: SEQ_COVIDSCREEN_NAME,
         handler: (dialogContext) => {
@@ -499,7 +498,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
             return;
         }
     }));
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q5b.healthcare.symptoms',
         sequenceName: SEQ_COVIDSCREEN_NAME,
         handler: (dialogContext) => {
@@ -511,7 +510,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
             return;
         }
     }));
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q5b.confirmation.yes',
         sequenceName: SEQ_COVIDSCREEN_NAME,
         handler: (dialogContext) => {
@@ -523,7 +522,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
             return;
         }
     }));
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q5b.confirmation.no',
         sequenceName: SEQ_COVIDSCREEN_NAME,
         handler: (dialogContext) => {
@@ -537,7 +536,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     }));
 
     // Question #6 Intents
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q6a.common.countries',
         sequenceName: SEQ_COVIDSCREEN_NAME,
         handler: (dialogContext) => {
@@ -551,7 +550,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
             return;
         }
     }));
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q6a.confirmation.yes',
         sequenceName: SEQ_COVIDSCREEN_NAME,
         handler: (dialogContext) => {
@@ -564,7 +563,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
             return;
         }
     }));
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q6a.confirmation.no',
         sequenceName: SEQ_COVIDSCREEN_NAME,
         handler: (dialogContext) => {
@@ -577,7 +576,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
             return;
         }
     }));
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q6b.common.countries',
         sequenceName: SEQ_COVIDSCREEN_NAME,
         handler: (dialogContext) => {
@@ -589,7 +588,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
             return;
         }
     }));
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q6b.confirmation.yes',
         sequenceName: SEQ_COVIDSCREEN_NAME,
         handler: (dialogContext) => {
@@ -601,7 +600,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
             return;
         }
     }));
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q6b.confirmation.no',
         sequenceName: SEQ_COVIDSCREEN_NAME,
         handler: (dialogContext) => {
@@ -615,7 +614,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     }));
 
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.complete',
         sequenceName: SEQ_COVIDSCREEN_NAME,
         handler: async (dialogContext) => {
@@ -654,7 +653,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.complete.triagenumber',
         sequenceName: SEQ_COVIDSCREEN_NAME,
         handler: async (dialogContext) => {
@@ -663,7 +662,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.complete.rebookappt',
         sequenceName: SEQ_COVIDSCREEN_NAME,
         handler: async (dialogContext) => {
@@ -672,7 +671,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
         }
     }));
 
-    intentManager.registerIntents({
+    convoClient.registerIntents({
         actions: [
             'skill.covidscreen.complete.rebookappt.confirmation.yes',
             'skill.covidscreen.complete.rebookappt.confirmation.able'
@@ -688,7 +687,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
             return;
         }
     });
-    intentManager.registerIntents({
+    convoClient.registerIntents({
         actions: [
             'skill.covidscreen.complete.rebookappt.confirmation.no',
             'skill.covidscreen.complete.rebookappt.confirmation.notable'

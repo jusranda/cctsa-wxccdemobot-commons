@@ -13,7 +13,7 @@
  * see <https://www.gnu.org/licenses/>.
  */
 
-const { Intent, IntentManager, Sequence, SequenceManager, fmtLog } = require("codingforconvos");
+const { Intent, Sequence } = require("codingforconvos");
 
 // Define Sequence Name Constants.
 const SEQ_COMMON_NAME = 'common';
@@ -27,13 +27,12 @@ const SEQ_COMMON_NAME = 'common';
 /**
  * Registers the sequences and intents for the authentication module.
  * 
- * @param {SequenceManager} sequenceManager The sequencer manager.
- * @param {IntentManager} intentManager     The intent manager.
+ * @param {ConvoClient} convoClient The convo client.
  */
-function registerModuleCommon(sequenceManager,intentManager) {
+function registerModuleCommon(convoClient) {
 
     // Register Sequence.
-    sequenceManager.registerSequence(new Sequence({
+    convoClient.registerSequence(new Sequence({
         name: SEQ_COMMON_NAME, // Sequence name, also used for Dialogflow context name.
         activity: 'talking', // Activity description, used in course correction.
         identityRequired: false,
@@ -63,7 +62,7 @@ function registerModuleCommon(sequenceManager,intentManager) {
 
 
     // Register Intent Handlers.
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'GetExpert',
         sequenceName: SEQ_COMMON_NAME,
         handler: (dialogContext) => {
@@ -73,7 +72,7 @@ function registerModuleCommon(sequenceManager,intentManager) {
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'Handled',
         sequenceName: SEQ_COMMON_NAME,
         handler: (dialogContext) => {
@@ -82,7 +81,7 @@ function registerModuleCommon(sequenceManager,intentManager) {
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'input.unknown',
         sequenceName: SEQ_COMMON_NAME,
         handler: (dialogContext) => {
@@ -91,7 +90,7 @@ function registerModuleCommon(sequenceManager,intentManager) {
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'fallback',
         sequenceName: SEQ_COMMON_NAME,
         handler: (dialogContext) => {
@@ -101,7 +100,7 @@ function registerModuleCommon(sequenceManager,intentManager) {
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'common.goodbye',
         sequenceName: SEQ_COMMON_NAME,
         handler: (dialogContext) => {
@@ -111,7 +110,7 @@ function registerModuleCommon(sequenceManager,intentManager) {
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'common.offer.agent',
         sequenceName: SEQ_COMMON_NAME,
         handler: (dialogContext) => {
@@ -121,7 +120,7 @@ function registerModuleCommon(sequenceManager,intentManager) {
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'common.offer.agent.confirmation.yes',
         sequenceName: SEQ_COMMON_NAME,
         handler: (dialogContext) => {
@@ -131,7 +130,7 @@ function registerModuleCommon(sequenceManager,intentManager) {
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'common.offer.agent.confirmation.no',
         sequenceName: SEQ_COMMON_NAME,
         handler: (dialogContext) => {
@@ -141,7 +140,7 @@ function registerModuleCommon(sequenceManager,intentManager) {
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'common.speaktoagent',
         sequenceName: SEQ_COMMON_NAME,
         handler: (dialogContext) => {
@@ -151,7 +150,7 @@ function registerModuleCommon(sequenceManager,intentManager) {
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'bypass.nomoreproblems',
         sequenceName: SEQ_COMMON_NAME,
         handler: (dialogContext) => {
@@ -161,7 +160,7 @@ function registerModuleCommon(sequenceManager,intentManager) {
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'common.tickettransfer',
         sequenceName: SEQ_COMMON_NAME,
         handler: async (dialogContext) => {
@@ -172,7 +171,7 @@ function registerModuleCommon(sequenceManager,intentManager) {
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'common.tickettransfer.confirmation.yes',
         sequenceName: SEQ_COMMON_NAME,
         handler: (dialogContext) => {
@@ -185,7 +184,7 @@ function registerModuleCommon(sequenceManager,intentManager) {
     const SEQ_ANYTHINGELSE_NAME = 'anythingelse';
 
     // Register Sequence.
-    sequenceManager.registerSequence(new Sequence({
+    convoClient.registerSequence(new Sequence({
         name: SEQ_ANYTHINGELSE_NAME, // Sequence name, also used for Dialogflow context name.
         activity: 'checking if there\'s anything else I can do to help', // Activity description, used in course correction.
         identityRequired: false,

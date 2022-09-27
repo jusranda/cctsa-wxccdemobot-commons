@@ -13,7 +13,7 @@
  * see <https://www.gnu.org/licenses/>.
  */
 
-const { Intent, IntentManager, Sequence, SequenceManager, fmtLog } = require("codingforconvos");
+const { Intent, Sequence, fmtLog } = require("codingforconvos");
 
 // Define Sequence Name Constants.
 const SEQ_WELCOME_NAME = 'welcome';
@@ -25,13 +25,12 @@ const SEQ_WELCOME_NAME = 'welcome';
 /**
  * Registers the sequences and intents for the welcome module.
  * 
- * @param {SequenceManager} sequenceManager The sequencer manager.
- * @param {IntentManager} intentManager     The intent manager.
+ * @param {ConvoClient} convoClient The convo client.
  */
-function registerModuleWelcome(sequenceManager,intentManager) {
+function registerModuleWelcome(convoClient) {
 
     // Register Sequence.
-    sequenceManager.registerSequence(new Sequence({
+    convoClient.registerSequence(new Sequence({
         name: SEQ_WELCOME_NAME, // Sequence name, also used for Dialogflow context name.
         activity: 'greeting each other', // Activity description, used in course correction.
         identityRequired: false,
@@ -92,7 +91,7 @@ function registerModuleWelcome(sequenceManager,intentManager) {
 
 
     // Register Intent Handlers.
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'input.welcome',
         sequenceName: SEQ_WELCOME_NAME,
         handler: (dialogContext) => {
@@ -101,7 +100,7 @@ function registerModuleWelcome(sequenceManager,intentManager) {
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'welcome.say.intro.familiar',
         sequenceName: SEQ_WELCOME_NAME,
         handler: (dialogContext) => {
@@ -111,7 +110,7 @@ function registerModuleWelcome(sequenceManager,intentManager) {
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'welcome.say.intro',
         sequenceName: SEQ_WELCOME_NAME,
         handler: (dialogContext) => {
@@ -121,7 +120,7 @@ function registerModuleWelcome(sequenceManager,intentManager) {
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'welcome.ask.wellbeing',
         sequenceName: SEQ_WELCOME_NAME,
         handler: (dialogContext) => {
@@ -131,7 +130,7 @@ function registerModuleWelcome(sequenceManager,intentManager) {
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'welcome.ask.wellbeing.wellbeing.positive',
         sequenceName: SEQ_WELCOME_NAME,
         handler: (dialogContext) => {
@@ -145,7 +144,7 @@ function registerModuleWelcome(sequenceManager,intentManager) {
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'welcome.ask.wellbeing.wellbeing.negative',
         sequenceName: SEQ_WELCOME_NAME,
         handler: (dialogContext) => {

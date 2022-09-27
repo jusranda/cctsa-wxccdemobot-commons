@@ -13,7 +13,7 @@
  * see <https://www.gnu.org/licenses/>.
  */
 
-const { Intent, IntentManager, Sequence, SequenceManager, fmtLog } = require("codingforconvos");
+const { Intent, Sequence, fmtLog } = require("codingforconvos");
 const { WebexConnectConnector } = require("../connectors/webexconnect");
 const { RedmineConnector } = require("../connectors/redmine");
 
@@ -65,12 +65,11 @@ function createAndSendOtpByEmail(dialogContext) {
 /**
  * Registers the sequences and intents for the authentication module.
  * 
- * @param {SequenceManager} sequenceManager The sequencer manager.
- * @param {IntentManager} intentManager     The intent manager.
+ * @param {ConvoClient} convoClient The convo client.
  */
-function registerModuleAuthentication(sequenceManager,intentManager) {
+function registerModuleAuthentication(convoClient) {
     // Register Sequence.
-    sequenceManager.registerSequence(new Sequence({
+    convoClient.registerSequence(new Sequence({
         name: SEQ_AUTH_NAME, // Sequence name, also used for Dialogflow context name.
         activity: 'verifying your identity', // Activity description, used in course correction.
         identityRequired: false,
@@ -172,7 +171,7 @@ function registerModuleAuthentication(sequenceManager,intentManager) {
     
     
     // Register Intent Handlers.
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'auth.required',
         sequenceName: SEQ_AUTH_NAME,
         handler: (dialogContext) => {
@@ -182,7 +181,7 @@ function registerModuleAuthentication(sequenceManager,intentManager) {
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'auth.getaccount',
         sequenceName: SEQ_AUTH_NAME,
         handler: (dialogContext) => {
@@ -192,7 +191,7 @@ function registerModuleAuthentication(sequenceManager,intentManager) {
     }));
 
     // FIXME: Most of this operation should be moved into the RedmineConnector, similar to phone and email account lookups.
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'auth.getaccount.value',
         sequenceName: SEQ_AUTH_NAME,
         handler: async (dialogContext) => {
@@ -244,7 +243,7 @@ function registerModuleAuthentication(sequenceManager,intentManager) {
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'auth.invalidaccount',
         sequenceName: SEQ_AUTH_NAME,
         handler: (dialogContext) => {
@@ -254,7 +253,7 @@ function registerModuleAuthentication(sequenceManager,intentManager) {
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'auth.sendotp',
         sequenceName: SEQ_AUTH_NAME,
         handler: (dialogContext) => {
@@ -264,7 +263,7 @@ function registerModuleAuthentication(sequenceManager,intentManager) {
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'auth.sendotp.confirmation.notreceived',
         sequenceName: SEQ_AUTH_NAME,
         handler: (dialogContext) => {
@@ -279,7 +278,7 @@ function registerModuleAuthentication(sequenceManager,intentManager) {
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'auth.sendotp.value',
         sequenceName: SEQ_AUTH_NAME,
         handler: (dialogContext) => {
@@ -305,7 +304,7 @@ function registerModuleAuthentication(sequenceManager,intentManager) {
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'auth.sendotp.success',
         sequenceName: SEQ_AUTH_NAME,
         handler: (dialogContext) => {
@@ -315,7 +314,7 @@ function registerModuleAuthentication(sequenceManager,intentManager) {
         }
     }));
 
-    intentManager.registerIntent(new Intent({
+    convoClient.registerIntent(new Intent({
         action: 'auth.sendotp.failure',
         sequenceName: SEQ_AUTH_NAME,
         handler: (dialogContext) => {
