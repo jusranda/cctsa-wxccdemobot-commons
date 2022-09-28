@@ -93,7 +93,7 @@ function registerModuleWelcome(convoClient) {
 
     async function getAdvisoryEventFromJdsTape(dialogContext) {
         const jdsConnector = dialogContext.connectorManager.get(JdsConnector.name());
-        const identityAlias = getIdentityAlias(dialogContext);
+        const identityAlias = getIdentityAlias(dialogContext).replace('+', '');
         let response = await jdsConnector.fetchJdsEvents(identityAlias, { top: 10 });
 
         for (var eventIdx in response.events) {
