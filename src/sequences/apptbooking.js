@@ -130,7 +130,7 @@ async function injectAppointmentBookingFailureEvent(dialogContext) {
             });
             dialogContext.deleteCtx('skillappointmentrebookrfcconfirm-followup');
 
-            dialogContext.pushSequence(SEQ_APPTBOOKING_NAME);
+            dialogContext.popSequence(SEQ_APPTBOOKING_NAME);
             return;
         }
     });
