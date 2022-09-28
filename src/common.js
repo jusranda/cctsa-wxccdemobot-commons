@@ -173,4 +173,4 @@ function format10dPhoneNumber(phoneNumber) {
     return phoneNumber;
 }
 
-module.exports = {injectJdsEvent,createRedmineIssue,getJdsPerson,format10dPhoneNumber};
+module.exports = {injectJdsEvent,createRedmineIssue,getJdsPerson,format10dPhoneNumber,getIdentityAlias};

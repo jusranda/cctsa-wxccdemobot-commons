@@ -14,6 +14,9 @@
  */
 
 const { Intent, Sequence, fmtLog } = require("codingforconvos");
+const { JdsConnector } = require("../connectors/jds");
+const { getIdentityAlias } = require("../common");
+
 
 // Define Sequence Name Constants.
 const SEQ_WELCOME_NAME = 'welcome';
@@ -88,13 +91,25 @@ function registerModuleWelcome(convoClient) {
         }
     }));
 
+    async function getAdvisoryEventFromJdsTape(dialogContext) {
+        const jdsConnector = dialogContext.connectorManager.get(JdsConnector.name());
+        const identityAlias = getIdentityAlias(dialogContext);
+        let response = await jdsConnector.fetchJdsEvents(identityAlias, { top: 10 });
 
+        for (var eventIdx in response.events) {
+            const event = response.events[eventIdx];
+            if (event.data.interceptEvent != undefined && event.data.interceptEvent != '') {
+                dialogContext.setSessionParam('advisoryEvent', event.data.interceptEvent);
+            }
+        }
+    }
 
     // Register Intent Handlers.
     convoClient.registerIntent(new Intent({
         action: 'input.welcome',
         sequenceName: SEQ_WELCOME_NAME,
-        handler: (dialogContext) => {
+        handler: async (dialogContext) => {
+            await getAdvisoryEventFromJdsTape(dialogContext);
             dialogContext.setFulfillmentText();
             return;
         }
