@@ -30,7 +30,8 @@ async function injectCovidScreenSuccessEvent(dialogContext) {
 async function injectCovidScreenFailureEvent(dialogContext) {
     injectJdsEvent(dialogContext, 'Covid Screen Rejected', {
         caseUrl: 'http://cctsa-redmine.outofservice.org/issues/'+dialogContext.ctxparams.triageNumber,
-        caseReason: 'Record of rejected screening results'
+        caseReason: 'Record of rejected screening results',
+        interceptEvent: 'RfcConfirmAppointmentRebook'
     });
 }
 
