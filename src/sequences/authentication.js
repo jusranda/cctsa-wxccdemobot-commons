@@ -230,6 +230,7 @@ function registerModuleAuthentication(convoClient) {
                 'customerFirstName': resultUser.firstName,
                 'customerLastName': resultUser.lastName,
                 'redmineOpenCaseId': resultUser.openCaseId,
+                'redmineOpenAppointmentId': resultUser.openAppointmentId,
                 'accountNumber': resultUser.accountNumber,
                 'accountTier': resultUser.accountTier,
                 'accountStatus': resultUser.accountStatus,

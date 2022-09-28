@@ -99,7 +99,10 @@ function registerModuleWelcome(convoClient) {
         for (var eventIdx in response.events) {
             const event = response.events[eventIdx];
             if (event.data.interceptEvent != undefined && event.data.interceptEvent != '') {
-                dialogContext.setSessionParam('advisoryEvent', event.data.interceptEvent);
+                dialogContext.setSessionParams({
+                    'redmineOpenCaseId' : dialogContext.params.redmineOpenAppointmentId,
+                    'advisoryEvent': event.data.interceptEvent
+                });
             }
         }
     }
