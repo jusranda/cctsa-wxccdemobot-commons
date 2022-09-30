@@ -13,7 +13,7 @@
  * see <https://www.gnu.org/licenses/>.
  */
 
-const { Intent, IntentManager, Sequence, SequenceManager, fmtLog } = require("codingforconvos");
+const { Intent, Sequence, fmtLog } = require("codingforconvos");
 const { RedmineConnector } = require("../connectors/redmine");
 const { GoogleCalendarConnector } = require("../connectors/googlecalendar");
 const { injectJdsEvent } = require("../common");
@@ -21,6 +21,11 @@ const { injectJdsEvent } = require("../common");
 // Define Sequence Name Constants.
 const SEQ_APPTBOOKING_NAME = 'apptbooking';
 
+/**
+ * Inject a JDS tape event representing an appointment booking success.
+ * 
+ * @param {DialogContext} dialogContext The dialog context.
+ */
 async function injectAppointmentBookingSuccessEvent(dialogContext) {
     injectJdsEvent(dialogContext, 'Covid Screen Accepted', {
         caseUrl: 'http://cctsa-redmine.outofservice.org/issues/'+dialogContext.ctxparams.triageNumber,
@@ -28,6 +33,11 @@ async function injectAppointmentBookingSuccessEvent(dialogContext) {
     });
 }
 
+/**
+ * Inject a JDS tape event representing an appointment booking failure.
+ * 
+ * @param {DialogContext} dialogContext The dialog context.
+ */
 async function injectAppointmentBookingFailureEvent(dialogContext) {
     injectJdsEvent(dialogContext, 'Covid Screen Rejected', {
         caseUrl: 'http://cctsa-redmine.outofservice.org/issues/'+dialogContext.ctxparams.triageNumber,
@@ -40,16 +50,13 @@ async function injectAppointmentBookingFailureEvent(dialogContext) {
  * 
  * @param {ConvoClient} convoClient The convo client.
  */
- function registerModuleAppointmentBooking(convoClient) {
+function registerModuleAppointmentBooking(convoClient) {
     // Register Sequence.
     convoClient.registerSequence(new Sequence({
         name: SEQ_APPTBOOKING_NAME, // Sequence name, also used for Dialogflow context name.
         activity: 'booking your appointment', // Activity description, used in course correction.
         identityRequired: false,
         authRequired: false,
-        breakIntents: [ // Intents that break from the core flow before attempting sequence navigation.
-            { action: 'skill.appointment.rebook.rfc.confirm', trigger: '1' }
-        ],
         params: {
             accepted: '0',
             declined: '0',
@@ -91,6 +98,7 @@ async function injectAppointmentBookingFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.appointment.rebook.rfc.confirm',
         sequenceName: SEQ_APPTBOOKING_NAME,
+        waitForReply: true,
         handler: (dialogContext) => {
             dialogContext.appendFulfillmentText();
             return;
@@ -102,6 +110,7 @@ async function injectAppointmentBookingFailureEvent(dialogContext) {
             'skill.appointment.rebook.rfc.confirm.confirmation.able'
         ],
         sequenceName: SEQ_APPTBOOKING_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -121,6 +130,7 @@ async function injectAppointmentBookingFailureEvent(dialogContext) {
             'skill.appointment.rebook.rfc.confirm.confirmation.notable'
         ],
         sequenceName: SEQ_APPTBOOKING_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -134,6 +144,30 @@ async function injectAppointmentBookingFailureEvent(dialogContext) {
             return;
         }
     });
+
+    convoClient.registerIntent(new Intent({
+        action: 'common.scheduletest',
+        sequenceName: SEQ_APPTBOOKING_NAME,
+        handler: async (dialogContext) => {
+            dialogContext.setFulfillmentText();
+            
+            // Calculate appointment start and end datetimes (end = +1hr from start)
+            const appointment_type = 'Cool Meeting';
+            const dateTimeStart = new Date(Date.parse(dialogContext.inparams.date.split('T')[0] + 'T' + dialogContext.inparams.time.split('T')[1].split('-')[0] + timeZoneOffset));
+            const dateTimeEnd = new Date(new Date(dateTimeStart).setHours(dateTimeStart.getHours() + 1));
+            const appointmentTimeString = dateTimeStart.toLocaleString(
+                'en-US',
+                { month: 'long', day: 'numeric', hour: 'numeric', timeZone: timeZone }
+            );
+                // Check the availability of the time, and make an appointment if there is time on the calendar
+            return dialogContext.connectorManager.get(GoogleCalendarConnector.name()).createCalendarEvent(dateTimeStart, dateTimeEnd, appointment_type).then(() => {
+                dialogContext.setFulfillmentText(`Ok, let me see if we can fit you in. ${appointmentTimeString} is fine!`);
+            }).catch((err) => {
+                console.log('Caught Error: '+err);
+                dialogContext.setFulfillmentText(`I'm sorry, there are no slots available for ${appointmentTimeString}.`);
+            });
+        }
+    }));    
 
 }
 

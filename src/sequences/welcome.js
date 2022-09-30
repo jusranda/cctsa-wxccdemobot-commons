@@ -16,6 +16,7 @@
 const { Intent, Sequence, fmtLog } = require("codingforconvos");
 const { JdsConnector } = require("../connectors/jds");
 const { getIdentityAlias } = require("../common");
+const { DialogContext } = require("codingforconvos/src/contexts");
 
 
 // Define Sequence Name Constants.
@@ -38,10 +39,6 @@ function registerModuleWelcome(convoClient) {
         activity: 'greeting each other', // Activity description, used in course correction.
         identityRequired: false,
         authRequired: false,
-        breakIntents: [ // Intents that break from the core flow before attempting sequence navigation.
-            { action: 'welcome.ask.wellbeing', trigger: '1' },
-            { action: 'skill.appointment.rebook.rfc.confirm', trigger: '1' }
-        ],
         params: {
             saidFirstWelcome: '0',
             saidIntro: '0',
@@ -91,6 +88,11 @@ function registerModuleWelcome(convoClient) {
         }
     }));
 
+    /**
+     * Fetch the latest advisory event from the JDS tape into the session props context.
+     * 
+     * @param {DialogContext} dialogContext The dialog context.
+     */
     async function getAdvisoryEventFromJdsTape(dialogContext) {
         const jdsConnector = dialogContext.connectorManager.get(JdsConnector.name());
         const identityAlias = getIdentityAlias(dialogContext).replace('+', '');
@@ -111,6 +113,7 @@ function registerModuleWelcome(convoClient) {
     convoClient.registerIntent(new Intent({
         action: 'input.welcome',
         sequenceName: SEQ_WELCOME_NAME,
+        waitForReply: false,
         handler: async (dialogContext) => {
             await getAdvisoryEventFromJdsTape(dialogContext);
             dialogContext.setFulfillmentText();
@@ -121,6 +124,7 @@ function registerModuleWelcome(convoClient) {
     convoClient.registerIntent(new Intent({
         action: 'welcome.say.intro.familiar',
         sequenceName: SEQ_WELCOME_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.appendFulfillmentText();
             dialogContext.setCurrentParam('saidIntro', '1');
@@ -131,6 +135,7 @@ function registerModuleWelcome(convoClient) {
     convoClient.registerIntent(new Intent({
         action: 'welcome.say.intro',
         sequenceName: SEQ_WELCOME_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.appendFulfillmentText();
             dialogContext.setCurrentParam('saidIntro', '1');
@@ -141,6 +146,7 @@ function registerModuleWelcome(convoClient) {
     convoClient.registerIntent(new Intent({
         action: 'welcome.ask.wellbeing',
         sequenceName: SEQ_WELCOME_NAME,
+        waitForReply: true,
         handler: (dialogContext) => {
             dialogContext.appendFulfillmentText();
             dialogContext.setCurrentParam ('askedWellbeing', '1');
@@ -151,6 +157,7 @@ function registerModuleWelcome(convoClient) {
     convoClient.registerIntent(new Intent({
         action: 'welcome.ask.wellbeing.wellbeing.positive',
         sequenceName: SEQ_WELCOME_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams ({
@@ -165,6 +172,7 @@ function registerModuleWelcome(convoClient) {
     convoClient.registerIntent(new Intent({
         action: 'welcome.ask.wellbeing.wellbeing.negative',
         sequenceName: SEQ_WELCOME_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams ({

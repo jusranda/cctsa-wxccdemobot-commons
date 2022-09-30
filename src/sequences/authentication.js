@@ -24,6 +24,11 @@ const SEQ_AUTH_NAME = 'authentication';
 // Register Authentication Sequence and Intent Handlers. //
 ///////////////////////////////////////////////////////////
 
+/**
+ * Reset and send a one-time-passcode (OTP) based on secondary channel configuration.
+ * 
+ * @param {DialogContext} dialogContext The dialog context.
+ */
 function createAndSendOtp(dialogContext) {
     if (dialogContext.params.secondChannel === 'sms') {
         createAndSendOtpBySms(dialogContext);
@@ -32,6 +37,11 @@ function createAndSendOtp(dialogContext) {
     }
 }
 
+/**
+ * Reset and send a one-time-passcode (OTP) via SMS.
+ * 
+ * @param {DialogContext} dialogContext The dialog context.
+ */
 function createAndSendOtpBySms(dialogContext) {
     let generatedOtp = WebexConnectConnector.createOtp();
     dialogContext.setCurrentParam('generatedOtp', generatedOtp);
@@ -47,6 +57,11 @@ function createAndSendOtpBySms(dialogContext) {
     );
 }
 
+/**
+ * Reset and send a one-time-passcode (OTP) via Email.
+ * 
+ * @param {DialogContext} dialogContext The dialog context.
+ */
 function createAndSendOtpByEmail(dialogContext) {
     let generatedOtp = WebexConnectConnector.createOtp();
     dialogContext.setCurrentParam('generatedOtp', generatedOtp);
@@ -74,12 +89,6 @@ function registerModuleAuthentication(convoClient) {
         activity: 'verifying your identity', // Activity description, used in course correction.
         identityRequired: false,
         authRequired: false,
-        breakIntents: [ // Intents that break from the core flow before attempting sequence navigation.
-            { action: 'auth.sendotp', trigger: '1' },
-            //{ action: 'auth.sendotp.fallback', trigger: '1' },
-            { action: 'auth.getaccount', trigger: '1' },
-            //{ action: 'auth.getaccount.fallback', trigger: '1' }
-        ],
         params: {
             validationComplete: '0',
             validationStatus: '0',
@@ -174,6 +183,7 @@ function registerModuleAuthentication(convoClient) {
     convoClient.registerIntent(new Intent({
         action: 'auth.required',
         sequenceName: SEQ_AUTH_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.appendFulfillmentText();
             dialogContext.setCurrentParam('advisedAuthRequired', '1');
@@ -184,6 +194,7 @@ function registerModuleAuthentication(convoClient) {
     convoClient.registerIntent(new Intent({
         action: 'auth.getaccount',
         sequenceName: SEQ_AUTH_NAME,
+        waitForReply: true,
         handler: (dialogContext) => {
             dialogContext.appendFulfillmentText();
             return;
@@ -194,6 +205,7 @@ function registerModuleAuthentication(convoClient) {
     convoClient.registerIntent(new Intent({
         action: 'auth.getaccount.value',
         sequenceName: SEQ_AUTH_NAME,
+        waitForReply: false,
         handler: async (dialogContext) => {
             const redmineApi = dialogContext.connectorManager.get(RedmineConnector.name());
     
@@ -247,6 +259,7 @@ function registerModuleAuthentication(convoClient) {
     convoClient.registerIntent(new Intent({
         action: 'auth.invalidaccount',
         sequenceName: SEQ_AUTH_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParam('receivedAccountNumber', '');
@@ -257,6 +270,7 @@ function registerModuleAuthentication(convoClient) {
     convoClient.registerIntent(new Intent({
         action: 'auth.sendotp',
         sequenceName: SEQ_AUTH_NAME,
+        waitForReply: true,
         handler: (dialogContext) => {
             dialogContext.appendFulfillmentText();
             createAndSendOtp(dialogContext);
@@ -267,6 +281,7 @@ function registerModuleAuthentication(convoClient) {
     convoClient.registerIntent(new Intent({
         action: 'auth.sendotp.confirmation.notreceived',
         sequenceName: SEQ_AUTH_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setSessionParam('customerValidated', '0');
@@ -282,6 +297,7 @@ function registerModuleAuthentication(convoClient) {
     convoClient.registerIntent(new Intent({
         action: 'auth.sendotp.value',
         sequenceName: SEQ_AUTH_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParam('receivedOtp', dialogContext.inparams.otp);
@@ -308,6 +324,7 @@ function registerModuleAuthentication(convoClient) {
     convoClient.registerIntent(new Intent({
         action: 'auth.sendotp.success',
         sequenceName: SEQ_AUTH_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.appendFulfillmentText();
             dialogContext.setCurrentParam('validationComplete', '1');
@@ -318,6 +335,7 @@ function registerModuleAuthentication(convoClient) {
     convoClient.registerIntent(new Intent({
         action: 'auth.sendotp.failure',
         sequenceName: SEQ_AUTH_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.appendFulfillmentText();
             dialogContext.setCurrentParam('validationComplete', '1');

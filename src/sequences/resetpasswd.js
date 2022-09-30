@@ -17,6 +17,7 @@ const { Intent, Sequence } = require("codingforconvos");
 const { RedmineConnector } = require("../connectors/redmine");
 const { WebexConnectConnector } = require("../connectors/webexconnect");
 const { injectJdsEvent,createRedmineIssue } = require("../common");
+const { DialogContext } = require("codingforconvos/src/contexts");
 
 // Define Sequence Name Constants.
 const SEQ_PWRESET_NAME = 'passwordreset';
@@ -61,6 +62,11 @@ function shuffleArray(array) {
 // Register Password Reset Sequence and Intent Handlers. //
 ///////////////////////////////////////////////////////////
 
+/**
+ * Reset and send a new password based on secondary channel configuration.
+ * 
+ * @param {DialogContext} dialogContext The dialog context.
+ */
 async function resetAndSendPassword(dialogContext) {
     if (dialogContext.params.secondChannel === 'sms') {
         resetAndSendPasswordBySms(dialogContext);
@@ -69,6 +75,11 @@ async function resetAndSendPassword(dialogContext) {
     }
 }
 
+/**
+ * Reset and send a new password via SMS.
+ * 
+ * @param {DialogContext} dialogContext The dialog context.
+ */
 async function resetAndSendPasswordBySms(dialogContext) {
     const tempPw = generatePassword();
     dialogContext.connectorManager.get(RedmineConnector.name()).resetRedmineUserPassword(dialogContext.params.redmineUserId,tempPw);
@@ -82,6 +93,11 @@ async function resetAndSendPasswordBySms(dialogContext) {
     );
 }
 
+/**
+ * Reset and send a new password via Email.
+ * 
+ * @param {DialogContext} dialogContext The dialog context.
+ */
 async function resetAndSendPasswordByEmail(dialogContext) {
     const tempPw = generatePassword();
     dialogContext.connectorManager.get(RedmineConnector.name()).resetRedmineUserPassword(dialogContext.params.redmineUserId,tempPw);
@@ -95,6 +111,11 @@ async function resetAndSendPasswordByEmail(dialogContext) {
     );
 }
 
+/**
+ * Inject a JDS tape event representing a password reset success.
+ * 
+ * @param {DialogContext} dialogContext The dialog context.
+ */
 async function injectPasswdResetSuccessEvent(dialogContext) {
     const redmineNewIssue = await createRedmineIssue(dialogContext);
     
@@ -104,6 +125,11 @@ async function injectPasswdResetSuccessEvent(dialogContext) {
     });
 }
 
+/**
+ * Inject a JDS tape event representing a password reset failure.
+ * 
+ * @param {DialogContext} dialogContext The dialog context.
+ */
 async function injectPasswdResetFailureEvent(dialogContext) {
     const redmineNewIssue = await createRedmineIssue(dialogContext);
     
@@ -125,11 +151,6 @@ async function injectPasswdResetFailureEvent(dialogContext) {
         activity: 'resetting your password', // Activity description, used in course correction.
         identityRequired: false,
         authRequired: true,
-        breakIntents: [ // Intents that break from the core flow before attempting sequence navigation.
-            { action: 'skill.resetpassword.sms', trigger: '1' },
-            { action: 'skill.resetpassword.email', trigger: '1' },
-            { action: 'skill.resetpassword.loginsuccess', trigger: '1' },
-        ],
         params: {
             executeStatus: '-1',
             passwordLinkSent: '0',
@@ -255,6 +276,7 @@ async function injectPasswdResetFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.resetpassword.loginsuccess',
         sequenceName: SEQ_PWRESET_NAME,
+        waitForReply: true,
         handler: (dialogContext) => {
             dialogContext.appendFulfillmentText();
             return;
@@ -264,6 +286,7 @@ async function injectPasswdResetFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.resetpassword.loginsuccess.fallback',
         sequenceName: SEQ_PWRESET_NAME,
+        waitForReply: true,
         handler: (dialogContext) => {
             dialogContext.appendFulfillmentText();
             return;
@@ -273,6 +296,7 @@ async function injectPasswdResetFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.resetpassword.sms',
         sequenceName: SEQ_PWRESET_NAME,
+        waitForReply: true,
         handler: (dialogContext) => {
             dialogContext.appendFulfillmentText();
             dialogContext.setCurrentParam('passwordLinkSent', '1');
@@ -284,6 +308,7 @@ async function injectPasswdResetFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.resetpassword.sms.fallback',
         sequenceName: SEQ_PWRESET_NAME,
+        waitForReply: true,
         handler: (dialogContext) => {
             dialogContext.appendFulfillmentText();
             return;
@@ -296,6 +321,7 @@ async function injectPasswdResetFailureEvent(dialogContext) {
             'skill.resetpassword.sms.confirmation.received'
         ],
         sequenceName: SEQ_PWRESET_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParam('passwordLinkReceived', '1');
@@ -311,6 +337,7 @@ async function injectPasswdResetFailureEvent(dialogContext) {
             'skill.resetpassword.sms.confirmation.notworking'
         ],
         sequenceName: SEQ_PWRESET_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -328,6 +355,7 @@ async function injectPasswdResetFailureEvent(dialogContext) {
             'skill.resetpassword.sms.confirmation.working'
         ],
         sequenceName: SEQ_PWRESET_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -343,6 +371,7 @@ async function injectPasswdResetFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.resetpassword.email',
         sequenceName: SEQ_PWRESET_NAME,
+        waitForReply: true,
         handler: (dialogContext) => {
             dialogContext.appendFulfillmentText();
             dialogContext.setCurrentParam('passwordLinkSent', '1');
@@ -354,6 +383,7 @@ async function injectPasswdResetFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.resetpassword.email.fallback',
         sequenceName: SEQ_PWRESET_NAME,
+        waitForReply: true,
         handler: (dialogContext) => {
             dialogContext.appendFulfillmentText();
             return;
@@ -366,6 +396,7 @@ async function injectPasswdResetFailureEvent(dialogContext) {
             'skill.resetpassword.email.confirmation.received'
         ],
         sequenceName: SEQ_PWRESET_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParam('passwordLinkReceived', '1');
@@ -381,6 +412,7 @@ async function injectPasswdResetFailureEvent(dialogContext) {
             'skill.resetpassword.email.confirmation.notworking'
         ],
         sequenceName: SEQ_PWRESET_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -398,6 +430,7 @@ async function injectPasswdResetFailureEvent(dialogContext) {
             'skill.resetpassword.email.confirmation.working'
         ],
         sequenceName: SEQ_PWRESET_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -418,6 +451,7 @@ async function injectPasswdResetFailureEvent(dialogContext) {
             'skill.resetpassword.loginsuccess.confirmation.working'
         ],
         sequenceName: SEQ_PWRESET_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -437,6 +471,7 @@ async function injectPasswdResetFailureEvent(dialogContext) {
             'skill.resetpassword.loginsuccess.confirmation.notworking'
         ],
         sequenceName: SEQ_PWRESET_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -451,6 +486,7 @@ async function injectPasswdResetFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.resetpassword.success',
         sequenceName: SEQ_PWRESET_NAME,
+        waitForReply: false,
         handler: async (dialogContext) => {
             await injectPasswdResetSuccessEvent(dialogContext);
 
@@ -466,6 +502,7 @@ async function injectPasswdResetFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.resetpassword.failure',
         sequenceName: SEQ_PWRESET_NAME,
+        waitForReply: false,
         handler: async (dialogContext) => {
             await injectPasswdResetFailureEvent(dialogContext);
 

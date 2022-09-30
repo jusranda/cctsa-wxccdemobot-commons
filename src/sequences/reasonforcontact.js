@@ -33,10 +33,6 @@ const CTX_RFC_NAME = 'reasonforcontact';
         activity: 'figuring out how I can help you', // Activity description, used in course correction.
         identityRequired: false,
         authRequired: false,
-        breakIntents: [ // Intents that break from the core flow before attempting sequence navigation.
-            { action: 'skill.reasonforcontact', trigger: '1' },
-            //{ action: 'skill.reasonforcontact.fallback', trigger: '1' }
-        ],
         params: {
             askedReasonForCalling: '0'
         },
@@ -75,6 +71,7 @@ const CTX_RFC_NAME = 'reasonforcontact';
     convoClient.registerIntent(new Intent({
         action: 'skill.reasonforcontact',
         sequenceName: CTX_RFC_NAME,
+        waitForReply: true,
         handler: (dialogContext) => {
             
             if (dialogContext.params.triggeredSkill === '1') {
@@ -99,6 +96,7 @@ const CTX_RFC_NAME = 'reasonforcontact';
     convoClient.registerIntent(new Intent({
         action: 'skill.reasonforcontact.fallback',
         sequenceName: CTX_RFC_NAME,
+        waitForReply: true,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             return;
@@ -108,6 +106,7 @@ const CTX_RFC_NAME = 'reasonforcontact';
     convoClient.registerIntent(new Intent({
         action: 'skill.reasonforcontact.wellbeing.positive',
         sequenceName: CTX_RFC_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             if (parseInt(dialogContext.params.helpCounter) >= 1) {
@@ -120,6 +119,7 @@ const CTX_RFC_NAME = 'reasonforcontact';
     convoClient.registerIntent(new Intent({
         action: 'skill.resetpassword',
         sequenceName: CTX_RFC_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.pushSequence('passwordreset');
@@ -130,6 +130,7 @@ const CTX_RFC_NAME = 'reasonforcontact';
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen',
         sequenceName: CTX_RFC_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.pushSequence('covidscreen');

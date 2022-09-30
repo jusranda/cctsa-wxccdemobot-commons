@@ -16,10 +16,16 @@
 const { Intent, Sequence, fmtLog } = require("codingforconvos");
 const { RedmineConnector } = require("../connectors/redmine");
 const { injectJdsEvent } = require("../common");
+const { DialogContext } = require("codingforconvos/src/contexts");
 
 // Define Sequence Name Constants.
 const SEQ_COVIDSCREEN_NAME = 'covidscreen';
 
+/**
+ * Inject a JDS tape event representing a covid-19 screening success.
+ * 
+ * @param {DialogContext} dialogContext The dialog context.
+ */
 async function injectCovidScreenSuccessEvent(dialogContext) {
     injectJdsEvent(dialogContext, 'Covid Screen Accepted', {
         caseUrl: 'http://cctsa-redmine.outofservice.org/issues/'+dialogContext.ctxparams.triageNumber,
@@ -27,6 +33,11 @@ async function injectCovidScreenSuccessEvent(dialogContext) {
     });
 }
 
+/**
+ * Inject a JDS tape event representing a covid-19 screening failure.
+ * 
+ * @param {DialogContext} dialogContext The dialog context.
+ */
 async function injectCovidScreenFailureEvent(dialogContext) {
     injectJdsEvent(dialogContext, 'Covid Screen Rejected', {
         caseUrl: 'http://cctsa-redmine.outofservice.org/issues/'+dialogContext.ctxparams.triageNumber,
@@ -40,29 +51,13 @@ async function injectCovidScreenFailureEvent(dialogContext) {
  * 
  * @param {ConvoClient} convoClient The convo client.
  */
- function registerModuleCovidScreen(convoClient) {
+function registerModuleCovidScreen(convoClient) {
     // Register Sequence.
     convoClient.registerSequence(new Sequence({
         name: SEQ_COVIDSCREEN_NAME, // Sequence name, also used for Dialogflow context name.
         activity: 'completing your Covid-19 in-person admittance questionnaire', // Activity description, used in course correction.
         identityRequired: false,
         authRequired: false,
-        breakIntents: [ // Intents that break from the core flow before attempting sequence navigation.
-            { action: 'skill.covidscreen.required', trigger: '1' },
-            { action: 'skill.covidscreen.declined', trigger: '1' },
-            { action: 'skill.covidscreen.complete.triagenumber', trigger: '1' },
-            { action: 'skill.covidscreen.complete.rebookappt', trigger: '1' },
-            { action: 'skill.covidscreen.q1a', trigger: '1' },
-            { action: 'skill.covidscreen.q1b', trigger: '1' },
-            { action: 'skill.covidscreen.q2', trigger: '1' },
-            { action: 'skill.covidscreen.q3', trigger: '1' },
-            { action: 'skill.covidscreen.q4a', trigger: '1' },
-            { action: 'skill.covidscreen.q4b', trigger: '1' },
-            { action: 'skill.covidscreen.q5a', trigger: '1' },
-            { action: 'skill.covidscreen.q5b', trigger: '1' },
-            { action: 'skill.covidscreen.q6a', trigger: '1' },
-            { action: 'skill.covidscreen.q6b', trigger: '1' },
-        ],
         params: {
             accepted: '0',
             declined: '0',
@@ -196,6 +191,12 @@ async function injectCovidScreenFailureEvent(dialogContext) {
         }
     }));
 
+    /**
+     * Return a summarized representation of the Covid-19 screening conversation outcome.
+     * 
+     * @param {DialogContext} dialogContext The dialog context.
+     * @returns a summarized representation of the Covid-19 screening conversation outcome.
+     */
     function summarizeTriage (dialogContext) {
         let context = dialogContext.getOrCreateCtx(SEQ_COVIDSCREEN_NAME);
 
@@ -241,6 +242,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.required',
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: true,
         handler: (dialogContext) => {
             dialogContext.appendFulfillmentText();
             return;
@@ -252,6 +254,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
             'skill.covidscreen.required.confirmation.able'
         ],
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -268,6 +271,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
             'skill.covidscreen.required.confirmation.notable'
         ],
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -292,6 +296,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
             'skill.covidscreen.q6b'
         ],
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: true,
         handler: (dialogContext) => {
             dialogContext.appendFulfillmentText();
             return;
@@ -302,6 +307,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q1a.confirmation.yes',
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -315,6 +321,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q1a.confirmation.no',
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -328,6 +335,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q1b.confirmation.yes',
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -340,6 +348,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q1b.confirmation.no',
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -350,10 +359,16 @@ async function injectCovidScreenFailureEvent(dialogContext) {
         }
     }));
 
+    /**
+     * Utility function for registering common format questions.
+     * 
+     * @param {string} questionId   The question label.
+     */
     function registerCommonCovidQuestion(questionId) {
         convoClient.registerIntent(new Intent({
             action: 'skill.covidscreen.'+questionId+'.confirmation.yes',
             sequenceName: SEQ_COVIDSCREEN_NAME,
+            waitForReply: false,
             handler: (dialogContext) => {
                 dialogContext.setFulfillmentText();
                 dialogContext.setCurrentParams({
@@ -366,6 +381,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
         convoClient.registerIntent(new Intent({
             action: 'skill.covidscreen.'+questionId+'.confirmation.no',
             sequenceName: SEQ_COVIDSCREEN_NAME,
+            waitForReply: false,
             handler: (dialogContext) => {
                 dialogContext.setFulfillmentText();
                 dialogContext.setCurrentParams({
@@ -384,6 +400,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q4a.healthcare.symptoms',
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -398,6 +415,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q4a.confirmation.yes',
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -411,6 +429,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q4a.confirmation.no',
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -424,6 +443,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q4b.healthcare.symptoms',
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -436,6 +456,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q4b.confirmation.yes',
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -448,6 +469,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q4b.confirmation.no',
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -462,6 +484,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q5a.healthcare.symptoms',
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -476,6 +499,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q5a.confirmation.yes',
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -489,6 +513,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q5a.confirmation.no',
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -502,6 +527,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q5b.healthcare.symptoms',
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -514,6 +540,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q5b.confirmation.yes',
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -526,6 +553,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q5b.confirmation.no',
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -540,6 +568,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q6a.common.countries',
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -554,6 +583,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q6a.confirmation.yes',
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -567,6 +597,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q6a.confirmation.no',
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -580,6 +611,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q6b.common.countries',
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -592,6 +624,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q6b.confirmation.yes',
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -604,6 +637,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.q6b.confirmation.no',
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -614,10 +648,10 @@ async function injectCovidScreenFailureEvent(dialogContext) {
         }
     }));
 
-
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.complete',
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: async (dialogContext) => {
             dialogContext.appendFulfillmentText();
 
@@ -657,6 +691,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.complete.triagenumber',
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: true,
         handler: async (dialogContext) => {
             dialogContext.appendFulfillmentText();
             return;
@@ -666,6 +701,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
     convoClient.registerIntent(new Intent({
         action: 'skill.covidscreen.complete.rebookappt',
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: true,
         handler: async (dialogContext) => {
             dialogContext.appendFulfillmentText();
             return;
@@ -678,6 +714,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
             'skill.covidscreen.complete.rebookappt.confirmation.able'
         ],
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
@@ -694,6 +731,7 @@ async function injectCovidScreenFailureEvent(dialogContext) {
             'skill.covidscreen.complete.rebookappt.confirmation.notable'
         ],
         sequenceName: SEQ_COVIDSCREEN_NAME,
+        waitForReply: false,
         handler: (dialogContext) => {
             dialogContext.setFulfillmentText();
             dialogContext.setCurrentParams({
