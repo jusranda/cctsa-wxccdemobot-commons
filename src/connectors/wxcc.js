@@ -64,6 +64,7 @@ const CXTR_WXCC_NAME = 'wxcc';
                 
             // Dialog Management
             helpCounter: '0',
+            responseAlreadySet: '0',
             fallbackCounter: '0',
             noInputCounter: '0',
             sequenceCurrent: 'welcome',
