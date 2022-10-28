@@ -27,6 +27,7 @@ function getJdsPerson(dialogContext) {
     let person = {};
 
     person.identityAlias = getIdentityAlias(dialogContext);
+    person.identityAliasType = getIdentityAliasType(dialogContext);
     person.firstName = dialogContext.params.customerFirstName;
     person.lastName = dialogContext.params.customerLastName;
     person.phone = '+1'+dialogContext.params.identityPhoneNumber;
@@ -43,10 +44,18 @@ IDENTITY_ALIAS.set('facebookMessenger', getIdentityFbMessengerId);
 IDENTITY_ALIAS.set('whatsapp', getIdentityWhatsAppNumber);
 IDENTITY_ALIAS.set('web', getIdentityEmail);
 
+const IDENTITY_ALIAS_TYPES = new Map();
+IDENTITY_ALIAS_TYPES.set('phone', 'phone');
+IDENTITY_ALIAS_TYPES.set('chat', 'email');
+IDENTITY_ALIAS_TYPES.set('sms', 'phone');
+IDENTITY_ALIAS_TYPES.set('facebookMessenger', 'customerId');
+IDENTITY_ALIAS_TYPES.set('whatsapp', 'phone');
+IDENTITY_ALIAS_TYPES.set('web', 'email');
+
 /**
  * Return the session property representing the in-use channel identity.
  * 
- * @param {DialogContext} dialogContext 
+ * @param {DialogContext} dialogContext The dialog context.
  * @returns the session property representing the in-use channel identity.
  */
 function getIdentityAlias(dialogContext) {
@@ -54,6 +63,19 @@ function getIdentityAlias(dialogContext) {
         return IDENTITY_ALIAS.get(dialogContext.params.wxccChannel)(dialogContext);
     }
     return getIdentityPhoneNumber(dialogContext);
+}
+
+/**
+ * Return the session property representing the in-use channel identity type.
+ * 
+ * @param {DialogContext} dialogContext The dialog context.
+ * @returns the session property representing the in-use channel identity type.
+ */
+ function getIdentityAliasType(dialogContext) {
+    if (IDENTITY_ALIAS_TYPES.has(dialogContext.params.wxccChannel)) {
+        return IDENTITY_ALIAS_TYPES.get(dialogContext.params.wxccChannel);
+    }
+    return 'phone';
 }
 
 /**

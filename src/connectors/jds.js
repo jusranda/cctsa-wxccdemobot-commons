@@ -38,8 +38,8 @@ const JDS_CHANNEL_TYPES = {
      * 
      * @example
      * const JdsConnector = New JdsConnector({
-     *     jdsUrl: 'https://jds-us1.cjaas.cisco.com',
-     *     dsSasToken: 'SharedAccessSignature so=cctsa&sn=sandbox&ss=ds&sp=rw&...'
+     *     jdsUrl: 'https://jds-xxx.cjaas.cisco.com',
+     *     dsSasToken: '...'
      * });
      * 
      * @param {Object} params The constructor parameters.
@@ -94,8 +94,8 @@ const JDS_CHANNEL_TYPES = {
      * @param {string} params   The parameters for the JDS event.
      */
     async injectJdsEvent(uuid, params) {
-        let now = Date.now();
-        let url = super.params.jdsUrl+'/events/v1/journey';
+        const now = Date.now();
+        const url = super.params.jdsUrl+'/events/v1/journey';
 
         // Validate the input parameters.
         if (params == undefined) { throw new Error('parameters object for creating JDS event objects is missing.'); }
@@ -103,17 +103,17 @@ const JDS_CHANNEL_TYPES = {
         if (params.origin == undefined) { throw new Error('origin is a required parameter for creating JDS event objects.'); }
         if (params.channelType == undefined) { throw new Error('channelType is a required parameter for creating JDS event objects.'); }
 
-        let stringParams = JSON.stringify(params);
+        const stringParams = JSON.stringify(params);
         console.log(`JdsConnector.injectJdsEvent().params: ${stringParams}`);
 
-        let stringPerson = JSON.stringify(params.person);
+        const stringPerson = JSON.stringify(params.person);
         console.log(`JdsConnector.injectJdsEvent().params.person: ${stringPerson}`);
 
-        let type = (params.type != undefined) ? params.type : 'manual';
-        let source = (params.source != undefined) ? params.source : 'web';
-        let previously = (params.previously != undefined) ? params.previously : '12345';
+        const type = (params.type != undefined) ? params.type : 'test';
+        const source = (params.source != undefined) ? params.source : 'web';
+        const previously = (params.previously != undefined) ? params.previously : '12345';
 
-        let eventParams = {
+        const eventParams = {
             "taskId": uuid,
             // FIXME: Work with BU on NOT_A_NUMBER on issue.
             //"origin": (dialogContext.params.wxccChannel !== 'phone') ? params.origin : params.person.identityAlias, 
@@ -126,21 +126,22 @@ const JDS_CHANNEL_TYPES = {
             "email": params.person.email
         }
 
-        for (var param in params.dataParams) {
+        for (let param in params.dataParams) {
             if (Object.prototype.hasOwnProperty.call(params.dataParams, param)) {
                 eventParams[param] = params.dataParams[param];
             }
         }
 
-        let data = {
+        const data = {
             "id": uuid,
             "previously": previously,
             "time": now.toString(),
-            "specVersion": "1.0",
+            "specversion": "1.0",
             "type": type,
             "source": source,
-            "person": params.person.identityAlias,
-            "dataContentType": "application/json",
+            "identity": params.person.identityAlias,
+            "identitytype": params.person.identityAliasType,
+            "dataContenttype": "application/json",
             "data": eventParams
         };
 
