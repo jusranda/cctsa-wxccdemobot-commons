@@ -14,12 +14,14 @@
  */
 
 const { Intent, Sequence, fmtLog } = require("codingforconvos");
-const { RedmineConnector } = require("../connectors/redmine");
 const { GoogleCalendarConnector } = require("../connectors/googlecalendar");
 const { injectJdsEvent } = require("../common");
 
 // Define Sequence Name Constants.
 const SEQ_APPTBOOKING_NAME = 'apptbooking';
+
+const timeZone = 'America/New_York';
+const timeZoneOffset = '-04:00';
 
 /**
  * Inject a JDS tape event representing an appointment booking success.
