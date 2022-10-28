@@ -94,7 +94,6 @@ const JDS_CHANNEL_TYPES = {
      * @param {string} params   The parameters for the JDS event.
      */
     async injectJdsEvent(uuid, params) {
-        const now = Date.now();
         const url = super.params.jdsUrl+'/events/v1/journey';
 
         // Validate the input parameters.
@@ -135,13 +134,13 @@ const JDS_CHANNEL_TYPES = {
         const data = {
             "id": uuid,
             "previously": previously,
-            "time": now.toString(),
+            "time": new Date().toISOString(),
             "specversion": "1.0",
             "type": type,
-            "source": source,
+            "source": source.replace(/\s+/g, ''), // Remove spaces to comply with uri-reference scheme.
             "identity": params.person.identityAlias,
             "identitytype": params.person.identityAliasType,
-            "dataContenttype": "application/json",
+            "datacontenttype": "application/json",
             "data": eventParams
         };
 
