@@ -36,13 +36,6 @@ const CXTR_WXCC_NAME = 'wxcc';
         params.name = CXTR_WXCC_NAME;
         params.params = (params != undefined) ? params : {};
         params.sessionParams = {
-            // Session and Channel Information
-            sessionId: '',
-            sessionInitialized: '0',
-            interactionId: '',
-            wxccChannel: '',
-            interactionSource: '',
-                
             origCallingNumber: '',
             callingNumber: '',
             origCalledNumber: '',
@@ -62,23 +55,9 @@ const CXTR_WXCC_NAME = 'wxcc';
             secondChannelAlias: '',
             secondChannelAddrType: '',
                 
-            // Dialog Management
-            helpCounter: '0',
-            responseAlreadySet: '0',
-            fallbackCounter: '0',
-            noInputCounter: '0',
-            sequenceCurrent: 'welcome',
-            sequenceStack: '',
-            lastEvent: '',
-            lastAction: '',
-            lastFulfillmentText: '',
-            fulfillmentBuffer: '',
             offeredAgent: '0',
             offeredAgentAccepted: '0',
             offeredAgentDeclined: '0',
-            triggeredSkill: '0',
-            sayGoodbye: '0',
-            saidGoodbye: '0'
         };
 
         params.populateFromPayload = (context, dialogContext) => {
