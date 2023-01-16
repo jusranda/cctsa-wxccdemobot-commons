@@ -36,6 +36,10 @@ const CXTR_WXCC_NAME = 'wxcc';
         params.name = CXTR_WXCC_NAME;
         params.params = (params != undefined) ? params : {};
         params.sessionParams = {
+            interactionSource: '',
+            interactionId: '',
+            wxccChannel: '',
+            
             origCallingNumber: '',
             callingNumber: '',
             origCalledNumber: '',
